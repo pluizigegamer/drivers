@@ -4,17 +4,19 @@ Automatically detect and install drivers for NVIDIA, AMD, and Intel GPUs plus al
 
 ## 🚀 Quick Start
 
-**Open PowerShell as Administrator** and run:
+**Open PowerShell as Administrator** and run one of these:
 
+### 🎨 Graphical Interface (NEW!)
 ```powershell
-irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/install-drivers-inline.ps1 | iex
+irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-gui.ps1 | iex
 ```
+**Features:** Visual hardware list, clickable driver buttons, copy URL to clipboard
 
-That's it! The script will:
-1. ✅ Detect your GPU (NVIDIA, AMD, or Intel)
-2. ✅ Find all motherboard devices
-3. ✅ Display download links for drivers
-4. ✅ Create a detailed log file
+### 📋 Console Mode
+```powershell
+irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/detect-drivers.ps1 | iex
+```
+**Features:** Text-based hardware detection with detailed logging
 
 ## ✨ Features
 
@@ -25,9 +27,17 @@ That's it! The script will:
 - 🔌 **USB:** USB hubs and controllers
 - 🖲️ **Motherboard:** Chipset and platform info
 - 📋 **Logging:** Detailed audit trail
+- 🎨 **GUI & Console:** Two deployment options
 
 ## 📊 What It Shows
 
+### GUI Version
+- **Left pane:** All detected hardware organized by type
+- **Right pane:** Available driver download links
+- **Buttons:** Download (opens browser) and Copy URL (to clipboard)
+- **Log box:** Action history with timestamps
+
+### Console Version
 ```
 ========== DETECTED HARDWARE ==========
 GPUs detected: 1
@@ -62,18 +72,27 @@ System devices detected: 12
 ✅ **Local Execution** - Runs entirely on your PC
 ✅ **Safe Links** - Only official manufacturer URLs
 
-## 📚 Documentation
+## 📚 File Descriptions
 
-For detailed guides and examples, see:
-- Local usage: Run the script with no parameters
-- Silent mode: `-Silent` flag skips the final pause
-- Log-only mode: `-LogOnly` shows detection without downloads
+| File | Purpose | Best For |
+|------|---------|----------|
+| `driver-gui.ps1` | Graphical interface | Visual users, easy clicking |
+| `driver-gui-readable.ps1` | GUI version (readable) | Code review, customization |
+| `detect-drivers.ps1` | Console mode | Automation, scripting |
+| `install-drivers.ps1` | Full version (readable) | Learning, reference |
 
 ## 🔗 Share This Script
 
-The one-liner is easy to share:
+The one-liners are easy to share:
+
+**GUI version:**
 ```
-irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/install-drivers-inline.ps1 | iex
+irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-gui.ps1 | iex
+```
+
+**Console version:**
+```
+irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/detect-drivers.ps1 | iex
 ```
 
 Perfect for Discord, Reddit, forums, or messaging apps!
@@ -93,6 +112,7 @@ Perfect for Discord, Reddit, forums, or messaging apps!
    - **NVIDIA:** https://www.nvidia.com/Download/index.aspx
    - **AMD:** https://www.amd.com/en/technologies/radeon-software
    - **Intel Arc:** https://www.intel.com/content/www/us/en/download/785597/
+   - **Chipsets:** Check motherboard manufacturer (Intel/AMD)
 4. Run installer executables
 5. Restart your computer
 
@@ -108,7 +128,10 @@ A: No, it detects hardware and provides download links. You download and install
 A: Yes, Windows 10, 11, and Server editions all supported.
 
 **Q: Where are logs saved?**
-A: `C:\Users\YourName\AppData\Local\Temp\driver-install-YYYYMMDD-HHMMSS.log`
+A: Console version saves to `C:\Users\YourName\AppData\Local\Temp\driver-install-YYYYMMDD-HHMMSS.log`
+
+**Q: Can I use the GUI version remotely?**
+A: The GUI needs a local system with display. For remote use, stick with the console version.
 
 ## 🛠️ Troubleshooting
 
@@ -124,6 +147,9 @@ A: `C:\Users\YourName\AppData\Local\Temp\driver-install-YYYYMMDD-HHMMSS.log`
 **One-liner not working**
 → Ensure you're using PowerShell (not Command Prompt) as Administrator
 
+**GUI won't open**
+→ Try the console version instead; some restricted environments block GUI
+
 ## 📝 License
 
 Open Source - Use freely!
@@ -131,7 +157,8 @@ Open Source - Use freely!
 ---
 
 **Created:** May 2024
-**Status:** Production Ready
+**Status:** Production Ready ✅
+**Latest:** Added GUI with Windows Forms interface
 **Author:** pluizigegamer
 
 Got questions? Open an issue on GitHub!
