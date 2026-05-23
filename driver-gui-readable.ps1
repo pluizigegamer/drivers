@@ -1,128 +1,199 @@
-# Load required assemblies
 [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
 [System.Reflection.Assembly]::LoadWithPartialName("System.drawing") | Out-Null
 
-# Check admin rights
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
     [System.Windows.Forms.MessageBox]::Show("Please run PowerShell as Administrator!", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
     exit 1
 }
 
-# Create main form
+# Main form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Driver Installer - Hardware Detection"
-$form.Size = New-Object System.Drawing.Size(900, 700)
+$form.Text = "Driver Installer Pro"
+$form.Size = New-Object System.Drawing.Size(1000, 750)
 $form.StartPosition = "CenterScreen"
+$form.BackColor = [System.Drawing.Color]::FromArgb(240, 240, 240)
 $form.Font = New-Object System.Drawing.Font("Segoe UI", 10)
 
-# Title label
-$titleLabel = New-Object System.Windows.Forms.Label
-$titleLabel.Text = "Detected Hardware & Drivers"
-$titleLabel.Location = New-Object System.Drawing.Point(10, 10)
-$titleLabel.Size = New-Object System.Drawing.Size(400, 30)
-$titleLabel.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
-$form.Controls.Add($titleLabel)
+# Header panel
+$headerPanel = New-Object System.Windows.Forms.Panel
+$headerPanel.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+$headerPanel.Size = New-Object System.Drawing.Size(1000, 60)
+$headerPanel.Dock = "Top"
+
+$headerLabel = New-Object System.Windows.Forms.Label
+$headerLabel.Text = "Driver Installer Pro - Auto Detection & Download"
+$headerLabel.ForeColor = [System.Drawing.Color]::White
+$headerLabel.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
+$headerLabel.Location = New-Object System.Drawing.Point(15, 10)
+$headerLabel.Size = New-Object System.Drawing.Size(800, 40)
+$headerPanel.Controls.Add($headerLabel)
+$form.Controls.Add($headerPanel)
+
+# Main content area
+$mainPanel = New-Object System.Windows.Forms.Panel
+$mainPanel.BackColor = [System.Drawing.Color]::White
+$mainPanel.Location = New-Object System.Drawing.Point(0, 60)
+$mainPanel.Size = New-Object System.Drawing.Size(1000, 640)
+$form.Controls.Add($mainPanel)
+
+# Left column label
+$hwLabel = New-Object System.Windows.Forms.Label
+$hwLabel.Text = "Detected Hardware"
+$hwLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$hwLabel.ForeColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+$hwLabel.Location = New-Object System.Drawing.Point(15, 15)
+$hwLabel.Size = New-Object System.Drawing.Size(450, 25)
+$mainPanel.Controls.Add($hwLabel)
+
+# Hardware listbox
+$listBox = New-Object System.Windows.Forms.ListBox
+$listBox.Location = New-Object System.Drawing.Point(15, 45)
+$listBox.Size = New-Object System.Drawing.Size(450, 250)
+$listBox.Font = New-Object System.Drawing.Font("Consolas", 9)
+$listBox.BackColor = [System.Drawing.Color]::FromArgb(250, 250, 250)
+$listBox.BorderStyle = "FixedSingle"
+$mainPanel.Controls.Add($listBox)
+
+# Right column label
+$drvLabel = New-Object System.Windows.Forms.Label
+$drvLabel.Text = "Available Drivers"
+$drvLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$drvLabel.ForeColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+$drvLabel.Location = New-Object System.Drawing.Point(520, 15)
+$drvLabel.Size = New-Object System.Drawing.Size(450, 25)
+$mainPanel.Controls.Add($drvLabel)
+
+# Driver listbox
+$driverListBox = New-Object System.Windows.Forms.ListBox
+$driverListBox.Location = New-Object System.Drawing.Point(520, 45)
+$driverListBox.Size = New-Object System.Drawing.Size(450, 250)
+$driverListBox.Font = New-Object System.Drawing.Font("Consolas", 9)
+$driverListBox.BackColor = [System.Drawing.Color]::FromArgb(250, 250, 250)
+$driverListBox.BorderStyle = "FixedSingle"
+$mainPanel.Controls.Add($driverListBox)
 
 # Status label
 $statusLabel = New-Object System.Windows.Forms.Label
-$statusLabel.Text = "Detecting hardware..."
-$statusLabel.Location = New-Object System.Drawing.Point(10, 45)
-$statusLabel.Size = New-Object System.Drawing.Size(300, 20)
-$statusLabel.ForeColor = [System.Drawing.Color]::Blue
-$form.Controls.Add($statusLabel)
+$statusLabel.Text = "Scanning hardware..."
+$statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(0, 120, 215)
+$statusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$statusLabel.Location = New-Object System.Drawing.Point(15, 310)
+$statusLabel.Size = New-Object System.Drawing.Size(950, 25)
+$mainPanel.Controls.Add($statusLabel)
 
-# Hardware listbox (left side)
-$listBox = New-Object System.Windows.Forms.ListBox
-$listBox.Location = New-Object System.Drawing.Point(10, 70)
-$listBox.Size = New-Object System.Drawing.Size(400, 300)
-$listBox.Font = New-Object System.Drawing.Font("Courier New", 9)
-$form.Controls.Add($listBox)
-
-# Driver listbox (right side)
-$driverListBox = New-Object System.Windows.Forms.ListBox
-$driverListBox.Location = New-Object System.Drawing.Point(420, 70)
-$driverListBox.Size = New-Object System.Drawing.Size(460, 300)
-$driverListBox.Font = New-Object System.Drawing.Font("Courier New", 9)
-$form.Controls.Add($driverListBox)
+# Progress bar
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(15, 340)
+$progressBar.Size = New-Object System.Drawing.Size(950, 25)
+$progressBar.BackColor = [System.Drawing.Color]::White
+$mainPanel.Controls.Add($progressBar)
 
 # Download button
 $downloadBtn = New-Object System.Windows.Forms.Button
 $downloadBtn.Text = "Download Selected"
-$downloadBtn.Location = New-Object System.Drawing.Point(420, 380)
-$downloadBtn.Size = New-Object System.Drawing.Size(220, 40)
+$downloadBtn.Location = New-Object System.Drawing.Point(15, 380)
+$downloadBtn.Size = New-Object System.Drawing.Size(220, 45)
 $downloadBtn.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
-$downloadBtn.BackColor = [System.Drawing.Color]::LimeGreen
+$downloadBtn.BackColor = [System.Drawing.Color]::FromArgb(0, 170, 0)
 $downloadBtn.ForeColor = [System.Drawing.Color]::White
-$form.Controls.Add($downloadBtn)
+$downloadBtn.FlatStyle = "Flat"
+$downloadBtn.FlatAppearance.BorderSize = 0
+$mainPanel.Controls.Add($downloadBtn)
 
 # Copy button
 $copyBtn = New-Object System.Windows.Forms.Button
-$copyBtn.Text = "Copy URL"
-$copyBtn.Location = New-Object System.Drawing.Point(650, 380)
-$copyBtn.Size = New-Object System.Drawing.Size(220, 40)
-$copyBtn.Font = New-Object System.Drawing.Font("Segoe UI", 10)
-$form.Controls.Add($copyBtn)
+$copyBtn.Text = "Copy Link"
+$copyBtn.Location = New-Object System.Drawing.Point(250, 380)
+$copyBtn.Size = New-Object System.Drawing.Size(215, 45)
+$copyBtn.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$copyBtn.BackColor = [System.Drawing.Color]::FromArgb(0, 120, 215)
+$copyBtn.ForeColor = [System.Drawing.Color]::White
+$copyBtn.FlatStyle = "Flat"
+$copyBtn.FlatAppearance.BorderSize = 0
+$mainPanel.Controls.Add($copyBtn)
+
+# Open folder button
+$openBtn = New-Object System.Windows.Forms.Button
+$openBtn.Text = "Open Downloads Folder"
+$openBtn.Location = New-Object System.Drawing.Point(750, 380)
+$openBtn.Size = New-Object System.Drawing.Size(215, 45)
+$openBtn.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$openBtn.BackColor = [System.Drawing.Color]::FromArgb(100, 100, 100)
+$openBtn.ForeColor = [System.Drawing.Color]::White
+$openBtn.FlatStyle = "Flat"
+$openBtn.FlatAppearance.BorderSize = 0
+$mainPanel.Controls.Add($openBtn)
 
 # Info/Log box
 $infoBox = New-Object System.Windows.Forms.TextBox
-$infoBox.Location = New-Object System.Drawing.Point(10, 430)
-$infoBox.Size = New-Object System.Drawing.Size(870, 230)
+$infoBox.Location = New-Object System.Drawing.Point(15, 435)
+$infoBox.Size = New-Object System.Drawing.Size(950, 180)
 $infoBox.Multiline = $true
 $infoBox.ReadOnly = $true
-$infoBox.Font = New-Object System.Drawing.Font("Courier New", 9)
+$infoBox.Font = New-Object System.Drawing.Font("Consolas", 9)
 $infoBox.ScrollBars = "Vertical"
-$form.Controls.Add($infoBox)
+$infoBox.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
+$infoBox.ForeColor = [System.Drawing.Color]::FromArgb(0, 255, 0)
+$mainPanel.Controls.Add($infoBox)
 
-# Global driver data array
+# Global vars
 $driverData = @()
+$downloadPath = [Environment]::GetFolderPath("MyDocuments") + "\Downloads"
 
-# Hardware detection function
+function AddLog($msg) {
+    $timestamp = Get-Date -Format "HH:mm:ss"
+    $infoBox.AppendText("[${timestamp}] $msg`n")
+}
+
 function DetectHardware {
-    $statusLabel.Text = "Detecting hardware..."
+    $statusLabel.Text = "Scanning hardware..."
+    $progressBar.Value = 0
     $form.Refresh()
     
-    $info = "=== HARDWARE DETECTION STARTED ===`n`n"
+    AddLog "Starting hardware detection..."
     $gpus = @()
     
     # Detect GPUs
+    AddLog "Scanning for GPUs..."
+    $progressBar.Value = 25
+    $form.Refresh()
+    
     Get-WmiObject Win32_VideoController -EA 0 | Where-Object { $_.Name } | ForEach-Object {
         if ($_.Name -like "*NVIDIA*") {
             $gpus += @{Type="GPU"; Name=$_.Name; Manufacturer="NVIDIA"}
-            $info += "[GPU] NVIDIA: $($_.Name)`n"
+            AddLog "Found NVIDIA GPU: $($_.Name)"
         }
         if ($_.Name -like "*AMD*" -or $_.Name -like "*Radeon*") {
             $gpus += @{Type="GPU"; Name=$_.Name; Manufacturer="AMD"}
-            $info += "[GPU] AMD: $($_.Name)`n"
+            AddLog "Found AMD GPU: $($_.Name)"
         }
         if ($_.Name -like "*Intel*") {
             $gpus += @{Type="GPU"; Name=$_.Name; Manufacturer="Intel"}
-            $info += "[GPU] Intel: $($_.Name)`n"
+            AddLog "Found Intel GPU: $($_.Name)"
         }
     }
     
     # Detect other devices
+    AddLog "Scanning for motherboard devices..."
+    $progressBar.Value = 50
+    $form.Refresh()
+    
     $devices = @()
     Get-WmiObject Win32_NetworkAdapterConfiguration -EA 0 | Where-Object { $_.Description } | ForEach-Object {
         $devices += @{Type="Network"; Name=$_.Description}
-        $info += "[Network] $($_.Description)`n"
     }
     
     Get-WmiObject Win32_SoundDevice -EA 0 | Where-Object { $_.Name } | ForEach-Object {
         $devices += @{Type="Audio"; Name=$_.Name}
-        $info += "[Audio] $($_.Name)`n"
     }
     
     Get-WmiObject Win32_IDEController -EA 0 | Where-Object { $_.Name } | ForEach-Object {
         $devices += @{Type="Storage"; Name=$_.Name}
-        $info += "[Storage] $($_.Name)`n"
     }
     
     Get-WmiObject Win32_BaseBoard -EA 0 | ForEach-Object {
         $devices += @{Type="Motherboard"; Name="$($_.Manufacturer) $($_.Product)"}
-        $info += "[Motherboard] $($_.Manufacturer) $($_.Product)`n"
     }
-    
-    $info += "`n=== ADDING TO UI ===`n"
     
     # Update hardware listbox
     $listBox.Items.Clear()
@@ -137,42 +208,46 @@ function DetectHardware {
     $driverListBox.Items.Clear()
     $script:driverData = @()
     
+    $progressBar.Value = 75
+    $form.Refresh()
+    
     if ($gpus | Where-Object { $_.Manufacturer -eq "NVIDIA" }) {
-        $driverListBox.Items.Add("NVIDIA Drivers")
-        $script:driverData += @{Name="NVIDIA Drivers"; URL="https://www.nvidia.com/Download/index.aspx"}
-        $info += "Added: NVIDIA driver link`n"
+        $driverListBox.Items.Add("NVIDIA Drivers (Latest)")
+        $script:driverData += @{Name="NVIDIA Drivers"; URL="https://us.download.nvidia.com/Windows/latest/"; Type="GPU"}
+        AddLog "Added NVIDIA driver option"
     }
     
     if ($gpus | Where-Object { $_.Manufacturer -eq "AMD" }) {
-        $driverListBox.Items.Add("AMD Radeon Drivers")
-        $script:driverData += @{Name="AMD Radeon Drivers"; URL="https://www.amd.com/en/technologies/radeon-software"}
-        $info += "Added: AMD driver link`n"
+        $driverListBox.Items.Add("AMD Radeon Drivers (Latest)")
+        $script:driverData += @{Name="AMD Radeon Drivers"; URL="https://www.amd.com/en/technologies/radeon-software"; Type="GPU"}
+        AddLog "Added AMD driver option"
     }
     
     if ($gpus | Where-Object { $_.Manufacturer -eq "Intel" }) {
-        $driverListBox.Items.Add("Intel Arc Drivers")
-        $script:driverData += @{Name="Intel Arc Drivers"; URL="https://www.intel.com/content/www/us/en/download/785597/intel-arc-graphics-driver.html"}
-        $info += "Added: Intel driver link`n"
+        $driverListBox.Items.Add("Intel Arc Drivers (Latest)")
+        $script:driverData += @{Name="Intel Arc Drivers"; URL="https://www.intel.com/content/www/us/en/download/785597/"; Type="GPU"}
+        AddLog "Added Intel driver option"
     }
     
-    # Detect chipset drivers
+    # Chipset drivers
     $mb = Get-WmiObject Win32_BaseBoard -EA 0
     if ($mb) {
         if ($mb.Manufacturer.ToLower() -like "*intel*") {
             $driverListBox.Items.Add("Intel Chipset Drivers")
-            $script:driverData += @{Name="Intel Chipset Drivers"; URL="https://www.intel.com/content/www/us/en/download/17596/intel-chipset-device-software.html"}
-            $info += "Added: Intel Chipset link`n"
+            $script:driverData += @{Name="Intel Chipset Drivers"; URL="https://www.intel.com/content/www/us/en/download/17596/"; Type="Chipset"}
+            AddLog "Added Intel Chipset driver option"
         }
         if ($mb.Manufacturer.ToLower() -like "*amd*") {
             $driverListBox.Items.Add("AMD Chipset Drivers")
-            $script:driverData += @{Name="AMD Chipset Drivers"; URL="https://www.amd.com/en/support"}
-            $info += "Added: AMD Chipset link`n"
+            $script:driverData += @{Name="AMD Chipset Drivers"; URL="https://www.amd.com/en/support"; Type="Chipset"}
+            AddLog "Added AMD Chipset driver option"
         }
     }
     
-    $infoBox.Text = $info
-    $statusLabel.Text = "Detection complete! Detected $($listBox.Items.Count) devices and $($driverListBox.Items.Count) driver links"
-    $statusLabel.ForeColor = [System.Drawing.Color]::Green
+    $progressBar.Value = 100
+    $statusLabel.Text = "Detection complete: $($listBox.Items.Count) devices found, $($driverListBox.Items.Count) drivers available"
+    $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(0, 170, 0)
+    AddLog "Hardware detection complete!"
 }
 
 # Download button click event
@@ -180,10 +255,34 @@ $downloadBtn.Add_Click({
     if ($driverListBox.SelectedIndex -ge 0) {
         $selected = $driverListBox.SelectedIndex
         if ($selected -lt $script:driverData.Count) {
-            $url = $script:driverData[$selected].URL
-            Start-Process $url
-            $infoBox.AppendText("`n[$(Get-Date -Format 'HH:mm:ss')] Opened: $url`n")
+            $driver = $script:driverData[$selected]
+            $url = $driver.URL
+            AddLog "Starting download from: $url"
+            
+            $statusLabel.Text = "Downloading $($driver.Name)..."
+            $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(255, 165, 0)
+            $form.Refresh()
+            
+            try {
+                $outFile = "$downloadPath\$($driver.Name.Replace(' ', '_')).exe"
+                Invoke-WebRequest -Uri $url -OutFile $outFile -UseBasicParsing -EA 0
+                
+                if (Test-Path $outFile) {
+                    AddLog "Downloaded successfully: $outFile"
+                    $statusLabel.Text = "Download complete! Saved to Downloads folder"
+                    $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(0, 170, 0)
+                } else {
+                    AddLog "Note: Download location may vary. Check your browser's download folder."
+                    $statusLabel.Text = "Opening download page in browser..."
+                    Start-Process $url
+                }
+            } catch {
+                AddLog "Error during download. Opening in browser instead..."
+                Start-Process $url
+            }
         }
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("Please select a driver first!", "Selection Required")
     }
 })
 
@@ -194,9 +293,19 @@ $copyBtn.Add_Click({
         if ($selected -lt $script:driverData.Count) {
             $url = $script:driverData[$selected].URL
             [System.Windows.Forms.Clipboard]::SetText($url)
-            [System.Windows.Forms.MessageBox]::Show("Copied: $url", "Copied to Clipboard")
-            $infoBox.AppendText("`n[$(Get-Date -Format 'HH:mm:ss')] Copied: $url`n")
+            AddLog "Copied to clipboard: $url"
+            [System.Windows.Forms.MessageBox]::Show("Link copied to clipboard!", "Success")
         }
+    }
+})
+
+# Open folder button
+$openBtn.Add_Click({
+    if (Test-Path $downloadPath) {
+        Start-Process $downloadPath
+        AddLog "Opening downloads folder..."
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("Downloads folder not found", "Error")
     }
 })
 
