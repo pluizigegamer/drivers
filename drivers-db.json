@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Sample NVIDIA RTX 3080",
+    "patterns": ["RTX 3080", "GeForce RTX 3080", "3080"],
+    "url": "https://us.download.nvidia.com/Windows/537.13/537.13-desktop-win10-win11-64bit-international-whql.exe",
+    "direct": true
+  }
+]
