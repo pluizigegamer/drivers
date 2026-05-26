@@ -1,0 +1,23 @@
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "NVIDIA GeForce (generic)",
+    "patterns": ["NVIDIA", "GeForce"],
+    "url": "https://us.download.nvidia.com/Windows/537.13/537.13-desktop-win10-win11-64bit-international-whql.exe",
+    "direct": true
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000002",
+    "name": "AMD Radeon (generic)",
+    "patterns": ["AMD", "Radeon"],
+    "url": "https://www.amd.com/en/technologies/radeon-software",
+    "direct": false
+  },
+  {
+    "id": "00000000-0000-0000-0000-000000000003",
+    "name": "Intel Graphics (generic)",
+    "patterns": ["Intel", "Iris", "HD Graphics", "Arc"],
+    "url": "https://www.intel.com/content/www/us/en/download.html",
+    "direct": false
+  }
+]
