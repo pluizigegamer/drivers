@@ -13,32 +13,23 @@ A modern, professional driver detection and management system for Windows with a
 
 ## Installation & Usage
 
-### Option 1: Direct Execution (Recommended)
+### Option 1: Local Execution (Recommended for dev)
 
 ```powershell
-# Run directly from PowerShell (requires administrator)
-iex (irm 'https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1')
+# Install dependencies and run UI (requires Node/npm)
+npm install
+npm start
 ```
 
-### Option 2: Local Execution
+### Option 2: PowerShell integration
 
-```powershell
-# Download and run locally
-$content = Get-Content 'C:\path\to\driver-manager.ps1' -Raw
-$content | iex
-```
-
-Or simply run the `.ps1` file directly:
-```powershell
-C:\Users\YourUser\Downloads\driver-manager.ps1
-```
+The UI can call a PowerShell backend for scanning and installing. This prototype does not perform installs by default.
 
 ## Requirements
 
 - Windows 10 or later
-- PowerShell 5.0 or later
-- Administrator privileges
-- .NET Framework 4.5+
+- Node.js (for the Electron UI)
+- Administrator privileges for scanning/installation
 
 ## How It Works
 
@@ -63,21 +54,6 @@ The `drivers-db.json` file contains driver entries:
   "category": "GPU"
 }
 ```
-
-- **id**: Unique identifier
-- **name**: Display name in the UI
-- **pattern**: Regex pattern to match against detected device names
-- **url**: Link to driver download page
-- **category**: Driver category (GPU, Audio, Network, etc.)
-
-## Color Scheme
-
-- **Background**: Dark (#0c0c0c)
-- **Panels**: Dark Gray (#181818)
-- **Text**: Light Gray (#e6e6e6)
-- **Accent**: Blue (#0078d7)
-- **Success**: Green (#4caf50)
-- **Danger**: Red (#f44336)
 
 ## Notes
 
