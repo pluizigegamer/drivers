@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "NVIDIA GeForce Driver",
+    "pattern": "NVIDIA|GeForce|RTX|GTX",
+    "url": "https://www.nvidia.com/Download/driverDetails.aspx/",
+    "category": "GPU"
+  },
+  {
+    "id": "2",
+    "name": "AMD Radeon Driver",
+    "pattern": "AMD|Radeon|RX|Vega",
+    "url": "https://www.amd.com/en/support",
+    "category": "GPU"
+  },
+  {
+    "id": "3",
+    "name": "Intel Graphics Driver",
+    "pattern": "Intel Graphics|Intel Iris",
+    "url": "https://www.intel.com/content/www/en/en/download/726609",
+    "category": "GPU"
+  },
+  {
+    "id": "4",
+    "name": "Realtek Audio Driver",
+    "pattern": "Realtek|Audio",
+    "url": "https://www.realtek.com/en/",
+    "category": "Audio"
+  },
+  {
+    "id": "5",
+    "name": "Intel Ethernet Driver",
+    "pattern": "Intel.*Ethernet|Intel.*Network",
+    "url": "https://www.intel.com/content/www/us/en/support/articles/000005480",
+    "category": "Network"
+  },
+  {
+    "id": "6",
+    "name": "Realtek Ethernet Driver",
+    "pattern": "Realtek.*Ethernet|Realtek.*Network",
+    "url": "https://www.realtek.com/en/",
+    "category": "Network"
+  }
+]
