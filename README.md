@@ -2,7 +2,7 @@
 
 🚀 **One-Line Installation:**
 ```powershell
-iex (irm 'https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1')
+irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1 | iex
 ```
 
 ## About
@@ -28,10 +28,10 @@ A modern, professional driver detection and management system for Windows with a
 
 **From PowerShell (as Administrator):**
 ```powershell
-iex (irm 'https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1')
+https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1 irm
 ```
 
-**Or download and run locally:**
+**Or download and run locally (NOT RECOMMENDED:**
 ```powershell
 C:\path\to\driver-manager.ps1
 ```
