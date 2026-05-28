@@ -169,7 +169,6 @@ $mainForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 $mainForm.BackColor = $Colors.Background
 $mainForm.ForeColor = $Colors.TextPrimary
 $mainForm.Font = New-Object System.Drawing.Font('Segoe UI', 9)
-$mainForm.Visible = $false
 
 # Left Panel - Driver List
 $leftPanel = New-Object System.Windows.Forms.Panel
@@ -336,10 +335,10 @@ function Load-DriverToForm {
 # ============================================================================
 $btnLogin.Add_Click({
     if (Verify-AdminPassword $passBox.Text) {
-        $loginForm.Hide()
         Load-Database
         Refresh-DriverList
-        $mainForm.Visible = $true
+        $loginForm.Close()
+        $mainForm.ShowDialog()
     } else {
         [System.Windows.Forms.MessageBox]::Show('Invalid password!', 'Authentication Failed', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         $passBox.Text = ''
@@ -432,11 +431,71 @@ $btnTest.Add_Click({
 })
 
 $btnLogout.Add_Click({
-    $mainForm.Visible = $false
+    $mainForm.Close()
     Clear-EditForm
     $passBox.Text = ''
-    $loginForm.Show()
-    $passBox.Focus()
+    $loginForm = New-Object System.Windows.Forms.Form
+    $loginForm.Text = 'Driver Manager Pro - Admin Login'
+    $loginForm.Size = New-Object System.Drawing.Size(400, 300)
+    $loginForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+    $loginForm.BackColor = $Colors.Background
+    $loginForm.ForeColor = $Colors.TextPrimary
+    $loginForm.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $loginForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $loginForm.MaximizeBox = $false
+    $loginForm.MinimizeBox = $false
+    
+    $loginTitle = New-Object System.Windows.Forms.Label
+    $loginTitle.Text = '🔐 Admin Panel Login'
+    $loginTitle.Font = New-Object System.Drawing.Font('Segoe UI', 16, [System.Drawing.FontStyle]::Bold)
+    $loginTitle.ForeColor = $Colors.Accent
+    $loginTitle.Location = New-Object System.Drawing.Point(30, 30)
+    $loginTitle.Size = New-Object System.Drawing.Size(340, 40)
+    $loginTitle.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+    
+    $passLabel = New-Object System.Windows.Forms.Label
+    $passLabel.Text = 'Password:'
+    $passLabel.ForeColor = $Colors.TextPrimary
+    $passLabel.Location = New-Object System.Drawing.Point(30, 90)
+    $passLabel.Size = New-Object System.Drawing.Size(340, 20)
+    
+    $passBox = New-Object System.Windows.Forms.TextBox
+    $passBox.Location = New-Object System.Drawing.Point(30, 115)
+    $passBox.Size = New-Object System.Drawing.Size(340, 30)
+    $passBox.BackColor = $Colors.PanelBg
+    $passBox.ForeColor = $Colors.TextPrimary
+    $passBox.UseSystemPasswordChar = $true
+    $passBox.Font = New-Object System.Drawing.Font('Segoe UI', 11)
+    $passBox.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    
+    $btnLogin = New-CustomButton -Text 'Login' -X 30 -Y 170 -Width 340 -Height 40
+    $btnLogin.Font = New-Object System.Drawing.Font('Segoe UI', 11, [System.Drawing.FontStyle]::Bold)
+    
+    $loginForm.Controls.Add($loginTitle)
+    $loginForm.Controls.Add($passLabel)
+    $loginForm.Controls.Add($passBox)
+    $loginForm.Controls.Add($btnLogin)
+    
+    $btnLogin.Add_Click({
+        if (Verify-AdminPassword $passBox.Text) {
+            Load-Database
+            Refresh-DriverList
+            $loginForm.Close()
+            $mainForm.ShowDialog()
+        } else {
+            [System.Windows.Forms.MessageBox]::Show('Invalid password!', 'Authentication Failed', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            $passBox.Text = ''
+            $passBox.Focus()
+        }
+    })
+    
+    $passBox.Add_KeyDown({
+        if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Return) {
+            $btnLogin.PerformClick()
+        }
+    })
+    
+    $loginForm.ShowDialog()
 })
 
 # ============================================================================
