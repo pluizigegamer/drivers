@@ -78,7 +78,6 @@ Pattern field uses regex to match hardware names:
 NVIDIA|GeForce|RTX|GTX         # Matches NVIDIA, GeForce, RTX, GTX
 AMD|Radeon                      # Matches AMD or Radeon
 Intel.*Graphics                 # Matches Intel followed by Graphics
-Realtek.*Ethernet              # Matches Realtek followed by Ethernet
 ```
 
 ## Categories
