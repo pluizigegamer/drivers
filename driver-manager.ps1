@@ -294,19 +294,13 @@ $txtSearch.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
 $txtSearch.Text = 'Search drivers...'
 $txtSearch.ForeColor = $Colors.TextSecondary
 
-$lbDatabase = New-CustomListBox -X 10 -Y 85 -Width 430 -Height 490
+$lbDatabase = New-CustomListBox -X 10 -Y 85 -Width 430 -Height 530
 
-$btnAddDriver = New-CustomButton -Text 'Add' -X 10 -Y 585 -Width 100 -Height 35
-$btnEditDriver = New-CustomButton -Text 'Edit' -X 120 -Y 585 -Width 100 -Height 35
-$btnDeleteDriver = New-CustomButton -Text 'Delete' -X 230 -Y 585 -Width 100 -Height 35 -BGColor $Colors.Danger
-$btnRefreshDB = New-CustomButton -Text 'Refresh' -X 340 -Y 585 -Width 100 -Height 35
+$btnRefreshDB = New-CustomButton -Text 'Refresh' -X 10 -Y 625 -Width 430 -Height 35
 
 $middlePanel.Controls.Add($middleLabel)
 $middlePanel.Controls.Add($txtSearch)
 $middlePanel.Controls.Add($lbDatabase)
-$middlePanel.Controls.Add($btnAddDriver)
-$middlePanel.Controls.Add($btnEditDriver)
-$middlePanel.Controls.Add($btnDeleteDriver)
 $middlePanel.Controls.Add($btnRefreshDB)
 
 # Right Panel - Detected Devices
