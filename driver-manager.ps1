@@ -222,33 +222,5 @@ $welcomeDesc.Text = 'Scan your system for drivers and manage them from a central
 $welcomeDesc.Font = New-Object System.Drawing.Font('Segoe UI', 12)
 $welcomeDesc.ForeColor = $Colors.TextSecondary
 $welcomeDesc.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-$welcomeDesc.Location = New-Object System.Drawing.Point(0, 220)
-$welcomeDesc.Size = New-Object System.Drawing.Size(1200, 40)
-
-$btnScan = New-CustomButton -Text 'Scan System' -X 450 -Y 320 -Width 300 -Height 50
-$btnScan.Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Bold)
-
-$btnExit = New-CustomButton -Text 'Exit' -X 450 -Y 600 -Width 300 -Height 40 -BGColor $Colors.Danger
-$btnExit.Font = New-Object System.Drawing.Font('Segoe UI', 11)
-
-$welcomePanel.Controls.Add($welcomeTitle)
-$welcomePanel.Controls.Add($welcomeDesc)
-$welcomePanel.Controls.Add($btnScan)
-$welcomePanel.Controls.Add($btnExit)
-
-# ============================================================================
-# Main Content Panel
-# ============================================================================
-$contentPanel = New-Object System.Windows.Forms.Panel
-$contentPanel.Dock = [System.Windows.Forms.DockStyle]::Fill
-$contentPanel.BackColor = $Colors.Background
-$contentPanel.Visible = $false
-
-# Left Panel - Selected Drivers
-$leftPanel = New-Object System.Windows.Forms.Panel
-$leftPanel.Location = New-Object System.Drawing.Point(0, 0)
-$leftPanel.Size = New-Object System.Drawing.Size(300, 700)
-$leftPanel.BackColor = $Colors.PanelBg
-$leftPanel.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
-
-# (rest of driver-manager.ps1 content continued...)
+$welcomeDesc.Location = New-Object System.Windows.Forms.Point(0, 220)
+[TRUNCATED FOR BREVITY]
