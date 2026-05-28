@@ -29,7 +29,7 @@ function Get-PasswordHash {
 
 function Verify-AdminPassword {
     param([string]$InputPassword)
-    $correctHash = "YAosVJOCA6dgm5kFVJtwnLMRj3uKbNF3/p7++tX/DB4=" # pluisje hashed
+    $correctHash = "YAosVJOCA6dgm5kFVJtwnLMRj3uKbNF3/p7++tX/DB4="
     $inputHash = Get-PasswordHash $InputPassword
     return $inputHash -eq $correctHash
 }
