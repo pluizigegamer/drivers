@@ -29,7 +29,7 @@ function Get-PasswordHash {
 
 function Verify-AdminPassword {
     param([string]$InputPassword)
-    $correctHash = "0wvPY0T8x/vXVzQXlmTcCJaDQqOVJHjvHmK8lU1XVEA=" # pluisje hashed
+    $correctHash = "YAosVJOCA6dgm5kFVJtwnLMRj3uKbNF3/p7++tX/DB4=" # pluisje hashed
     $inputHash = Get-PasswordHash $InputPassword
     return $inputHash -eq $correctHash
 }
@@ -249,7 +249,7 @@ $txtPattern.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
 
 # URL
 $lblUrl = New-Object System.Windows.Forms.Label
-$lblUrl.Text = 'Download URL:'
+$lblUrl.Text = 'Download URL or PowerShell Command:'
 $lblUrl.ForeColor = $Colors.TextPrimary
 $lblUrl.Location = New-Object System.Drawing.Point(10, 160)
 $lblUrl.Size = New-Object System.Drawing.Size(480, 18)
