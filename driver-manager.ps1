@@ -31,7 +31,7 @@ $AppData = @{
     SelectedDrivers = [System.Collections.ArrayList]@()
     DetectedDevices = @()
     Database = @()
-    DBPath = "https://github.com/pluizigegamer/drivers/main/drivers-db.json"
+    DBPath = "$env:APPDATA\DriverManager\drivers-db.json"
 }
 
 # Ensure database directory exists
@@ -435,7 +435,15 @@ $btnDownload.Add_Click({
     foreach ($driverName in $AppData.SelectedDrivers) {
         $driver = $AppData.Database | Where-Object { $_.name -eq $driverName }
         if ($driver) {
-            Start-Process -FilePath $driver.url
+            # Check if URL is a PowerShell command
+            if ($driver.url -match '^powershell\s+-Command') {
+                # Execute PowerShell command
+                $cmdString = $driver.url -replace '^powershell\s+-Command\s+"?', '' -replace '"?$', ''
+                Invoke-Expression $cmdString
+            } else {
+                # Open URL in default browser
+                Start-Process -FilePath $driver.url
+            }
         }
     }
 })
