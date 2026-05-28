@@ -1,9 +1,9 @@
 [
   {
     "id": "1",
-    "name": "NVIDIA GeForce Driver",
+    "name": "Global NVIDIA Driver",
     "pattern": "NVIDIA|GeForce|RTX|GTX",
-    "url": "https://www.nvidia.com/Download/driverDetails.aspx/",
+    "url": "https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe",
     "category": "GPU"
   },
   {
