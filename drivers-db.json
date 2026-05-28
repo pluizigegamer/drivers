@@ -10,7 +10,7 @@
     "id": "2",
     "name": "AMD Radeon Driver",
     "pattern": "AMD|Radeon|RX|Vega",
-    "url": "Invoke-WebRequest -Uri "https://drivers.amd.com/drivers/installer/26.10/whql/amd-software-adrenalin-edition-26.5.2-minimalsetup-260513_web.exe" -Headers @{"Referer" = "https://www.amd.com/"} -UserAgent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -OutFile "$env:USERPROFILE\Downloads\amd_driver.exe"",
+    "url": "Invoke-WebRequest -Uri "https://drivers.amd.com/drivers/installer/26.10/whql/amd-software-adrenalin-edition-26.5.2-minimalsetup-260513_web.exe" -Headers @{"Referer" = "https://www.amd.com/"} -UserAgent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -OutFile "$env:USERPROFILE\Downloads\amd_driver.exe"","
     "category": "GPU"
   },
   {
