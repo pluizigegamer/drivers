@@ -36,21 +36,6 @@ https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1 
 C:\path\to\driver-manager.ps1
 ```
 
-### Admin Panel (Password Protected)
-
-**Access the admin panel to manage drivers:**
-```powershell
-# Run as Administrator
-iex (irm 'https://raw.githubusercontent.com/pluizigegamer/drivers/main/admin-panel.ps1')
-```
-
-**Admin Features:**
-- ✏️ Add new drivers
-- 🔧 Edit existing drivers
-- 🗑️ Delete drivers
-- 🔗 Test download URLs
-- 🔒 Password protected access
-
 ## How It Works
 
 ### User Mode
@@ -62,11 +47,6 @@ iex (irm 'https://raw.githubusercontent.com/pluizigegamer/drivers/main/admin-pan
    - Right: Detected devices
 4. **Download** → Select drivers and install
 
-### Admin Mode
-1. **Login** → Enter admin password
-2. **Manage Database** → Add/Edit/Delete drivers
-3. **Test URLs** → Verify download links work
-4. **Save Changes** → Updates stored automatically
 
 ## UI Design
 
@@ -92,29 +72,12 @@ The `drivers-db.json` contains entries like:
 - NVIDIA GeForce
 - AMD Radeon
 - Intel Graphics
-- Realtek Audio
-- Intel Ethernet
-- Realtek Ethernet
 
 ## Customization
-
-Use the admin panel to:
-- Add custom drivers
-- Edit driver information
-- Update download links
-- Change detection patterns
-- Organize by category
 
 ## Storage
 
 The database is stored at: `%APPDATA%\DriverManager\drivers-db.json`
-
-## Security
-
-- Admin panel uses SHA256 password hashing
-- Password verification is secure
-- Configuration stored in hidden directory
-- No plaintext passwords in files
 
 ## Troubleshooting
 
@@ -130,19 +93,13 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 
 **GPU not detected?**
 - Update patterns in admin panel for your specific model
-
-**Admin login fails?**
-- Ensure password is correct
-- Check for caps lock
-- Verify no extra spaces
-
+- 
 ## Technical Stack
 
 - **Language**: PowerShell 5.0+
 - **UI**: Windows Forms
 - **Database**: JSON
 - **Detection**: WMI (Windows Management Instrumentation)
-- **Security**: SHA256 password hashing
 
 ## Files
 
@@ -154,7 +111,6 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
 ## Documentation
 
 - **README.md** - Overview and quick start
-- **ADMIN-GUIDE.md** - Admin panel documentation
 
 ## License
 
