@@ -31,7 +31,7 @@ $AppData = @{
     SelectedDrivers = [System.Collections.ArrayList]@()
     DetectedDevices = @()
     Database = @()
-    DBPath = "$env:APPDATA\main\drivers-db.json"
+    DBPath = "https://github.com/pluizigegamer/drivers/main/drivers-db.json"
 }
 
 # Ensure database directory exists
