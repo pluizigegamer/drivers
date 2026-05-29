@@ -12,6 +12,14 @@ Add-Type -AssemblyName System.Drawing
 # ============================================================================
 # Password & Security
 # ============================================================================
+$ConfigPath = "$env:APPDATA\.drvmgr\config.dat"
+$ConfigDir = Split-Path -Path $ConfigPath
+
+if (-not (Test-Path $ConfigDir)) { 
+    New-Item -ItemType Directory -Path $ConfigDir -Force | Out-Null 
+}
+
+# Hash the password and store it
 function Get-PasswordHash {
     param([string]$Password)
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Password)
