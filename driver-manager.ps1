@@ -246,4 +246,266 @@ $contentPanel.Visible = $false
 
 # Left Panel - Selected Drivers
 $leftPanel = New-Object System.Windows.Forms.Panel
-$leftPanel.Location
+$leftPanel.Location = New-Object System.Drawing.Point(0, 0)
+$leftPanel.Size = New-Object System.Drawing.Size(300, 700)
+$leftPanel.BackColor = $Colors.PanelBg
+$leftPanel.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+
+$leftLabel = New-Object System.Windows.Forms.Label
+$leftLabel.Text = 'Selected Drivers'
+$leftLabel.Font = New-Object System.Drawing.Font('Segoe UI', 11, [System.Drawing.FontStyle]::Bold)
+$leftLabel.ForeColor = $Colors.TextPrimary
+$leftLabel.Location = New-Object System.Drawing.Point(10, 10)
+$leftLabel.Size = New-Object System.Drawing.Size(280, 25)
+
+$lbSelected = New-CustomListBox -X 10 -Y 45 -Width 280 -Height 530
+
+$btnRemoveSelected = New-CustomButton -Text 'Remove' -X 10 -Y 585 -Width 130 -Height 35 -BGColor $Colors.Danger
+$btnClearSelected = New-CustomButton -Text 'Clear All' -X 150 -Y 585 -Width 140 -Height 35 -BGColor $Colors.Danger
+
+$leftPanel.Controls.Add($leftLabel)
+$leftPanel.Controls.Add($lbSelected)
+$leftPanel.Controls.Add($btnRemoveSelected)
+$leftPanel.Controls.Add($btnClearSelected)
+
+# Middle Panel - Database
+$middlePanel = New-Object System.Windows.Forms.Panel
+$middlePanel.Location = New-Object System.Drawing.Point(300, 0)
+$middlePanel.Size = New-Object System.Drawing.Size(450, 700)
+$middlePanel.BackColor = $Colors.PanelBg
+$middlePanel.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+
+$middleLabel = New-Object System.Windows.Forms.Label
+$middleLabel.Text = 'Driver Database'
+$middleLabel.Font = New-Object System.Drawing.Font('Segoe UI', 11, [System.Drawing.FontStyle]::Bold)
+$middleLabel.ForeColor = $Colors.TextPrimary
+$middleLabel.Location = New-Object System.Drawing.Point(10, 10)
+$middleLabel.Size = New-Object System.Drawing.Size(430, 25)
+
+$txtSearch = New-Object System.Windows.Forms.TextBox
+$txtSearch.Location = New-Object System.Drawing.Point(10, 45)
+$txtSearch.Size = New-Object System.Drawing.Size(430, 30)
+$txtSearch.BackColor = $Colors.Background
+$txtSearch.ForeColor = $Colors.TextPrimary
+$txtSearch.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+$txtSearch.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+$txtSearch.Text = 'Search drivers...'
+$txtSearch.ForeColor = $Colors.TextSecondary
+
+$lbDatabase = New-CustomListBox -X 10 -Y 85 -Width 430 -Height 530
+
+$btnRefreshDB = New-CustomButton -Text 'Refresh' -X 10 -Y 625 -Width 430 -Height 35
+
+$middlePanel.Controls.Add($middleLabel)
+$middlePanel.Controls.Add($txtSearch)
+$middlePanel.Controls.Add($lbDatabase)
+$middlePanel.Controls.Add($btnRefreshDB)
+
+# Right Panel - Detected Devices
+$rightPanel = New-Object System.Windows.Forms.Panel
+$rightPanel.Location = New-Object System.Drawing.Point(750, 0)
+$rightPanel.Size = New-Object System.Drawing.Size(450, 700)
+$rightPanel.BackColor = $Colors.PanelBg
+$rightPanel.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+
+$rightLabel = New-Object System.Windows.Forms.Label
+$rightLabel.Text = 'Detected Devices'
+$rightLabel.Font = New-Object System.Drawing.Font('Segoe UI', 11, [System.Drawing.FontStyle]::Bold)
+$rightLabel.ForeColor = $Colors.TextPrimary
+$rightLabel.Location = New-Object System.Drawing.Point(10, 10)
+$rightLabel.Size = New-Object System.Drawing.Size(430, 25)
+
+$lbDevices = New-CustomListBox -X 10 -Y 45 -Width 430 -Height 535
+
+$btnDownload = New-CustomButton -Text 'Download & Install' -X 10 -Y 590 -Width 210 -Height 40 -BGColor $Colors.Success
+$btnDownload.Font = New-Object System.Drawing.Font('Segoe UI', 10, [System.Drawing.FontStyle]::Bold)
+
+$btnBack = New-CustomButton -Text 'Back' -X 230 -Y 590 -Width 210 -Height 40 -BGColor $Colors.Danger
+
+$rightPanel.Controls.Add($rightLabel)
+$rightPanel.Controls.Add($lbDevices)
+$rightPanel.Controls.Add($btnDownload)
+$rightPanel.Controls.Add($btnBack)
+
+$contentPanel.Controls.Add($leftPanel)
+$contentPanel.Controls.Add($middlePanel)
+$contentPanel.Controls.Add($rightPanel)
+
+# Responsive layout: adjust panels when window resizes
+$main.Add_Resize({
+    $w = $main.ClientSize.Width
+    $h = $main.ClientSize.Height
+    $leftW = [int]($w * 0.25)
+    $midW = [int]($w * 0.50)
+    $rightW = $w - $leftW - $midW
+
+    $leftPanel.Location = New-Object System.Drawing.Point(0,0)
+    $leftPanel.Size = New-Object System.Drawing.Size($leftW, $h)
+    $middlePanel.Location = New-Object System.Drawing.Point($leftW,0)
+    $middlePanel.Size = New-Object System.Drawing.Size($midW, $h)
+    $rightPanel.Location = New-Object System.Drawing.Point($leftW + $midW, 0)
+    $rightPanel.Size = New-Object System.Drawing.Size($rightW, $h)
+
+    # Adjust inner control sizes
+    $lbSelected.Size = New-Object System.Drawing.Size($leftPanel.Width - 20, $h - 140)
+    $lbDatabase.Size = New-Object System.Drawing.Size($middlePanel.Width - 20, $h - 180)
+    $lbDevices.Size = New-Object System.Drawing.Size($rightPanel.Width - 20, $h - 170)
+
+    # Buttons positions
+    $btnRemoveSelected.Location = New-Object System.Drawing.Point(10, $h - 115)
+    $btnClearSelected.Location = New-Object System.Drawing.Point(150, $h - 115)
+    $btnRefreshDB.Location = New-Object System.Drawing.Point(10, $h - 75)
+    $btnDownload.Location = New-Object System.Drawing.Point(10, $h - 95)
+    $btnBack.Location = New-Object System.Drawing.Point(230, $h - 95)
+})
+
+# Background image support: use bg.png in script directory if available
+$BackgroundImagePath = Join-Path -Path $PSScriptRoot -ChildPath 'bg.png'
+if (Test-Path $BackgroundImagePath) {
+    try {
+        $main.BackgroundImage = [System.Drawing.Image]::FromFile($BackgroundImagePath)
+        $main.BackgroundImageLayout = 'Stretch'
+    } catch {}
+}
+
+# ============================================================================
+# UI Refresh Functions
+# ============================================================================
+function Refresh-Lists {
+    $lbDatabase.Items.Clear()
+    $AppData.Database | ForEach-Object {
+        $lbDatabase.Items.Add($_.name) | Out-Null
+    }
+    
+    $lbSelected.Items.Clear()
+    $AppData.SelectedDrivers | ForEach-Object {
+        $lbSelected.Items.Add($_) | Out-Null
+    }
+    
+    $lbDevices.Items.Clear()
+    $AppData.DetectedDevices | ForEach-Object {
+        $lbDevices.Items.Add("[$($_.Category)] $($_.Name)") | Out-Null
+    }
+}
+
+# ============================================================================
+# Event Handlers
+# ============================================================================
+$btnScan.Add_Click({
+    $AppData.DetectedDevices = Detect-Devices
+    Load-Database
+    Refresh-Lists
+    
+    $welcomePanel.Visible = $false
+    $contentPanel.Visible = $true
+    $main.Controls.Add($contentPanel)
+})
+
+$btnExit.Add_Click({
+    $main.Close()
+})
+
+$btnBack.Add_Click({
+    $contentPanel.Visible = $false
+    $welcomePanel.Visible = $true
+})
+
+$txtSearch.Add_Click({
+    if ($txtSearch.Text -eq 'Search drivers...') {
+        $txtSearch.Text = ''
+        $txtSearch.ForeColor = $Colors.TextPrimary
+    }
+})
+
+$txtSearch.Add_Leave({
+    if ($txtSearch.Text -eq '') {
+        $txtSearch.Text = 'Search drivers...'
+        $txtSearch.ForeColor = $Colors.TextSecondary
+    }
+})
+
+$txtSearch.Add_TextChanged({
+    if ($txtSearch.Text -ne 'Search drivers...') {
+        $lbDatabase.Items.Clear()
+        $AppData.Database | Where-Object { $_.name -like "*$($txtSearch.Text)*" } | ForEach-Object {
+            $lbDatabase.Items.Add($_.name) | Out-Null
+        }
+    }
+})
+
+$lbDatabase.Add_SelectedIndexChanged({
+    if ($lbDatabase.SelectedIndex -ge 0) {
+        $selected = $AppData.Database | Where-Object { $_.name -eq $lbDatabase.SelectedItem }
+        if ($AppData.SelectedDrivers -notcontains $selected.name) {
+            $AppData.SelectedDrivers.Add($selected.name) | Out-Null
+            Refresh-Lists
+        }
+    }
+})
+
+$btnRemoveSelected.Add_Click({
+    if ($lbSelected.SelectedIndex -ge 0) {
+        $AppData.SelectedDrivers.RemoveAt($lbSelected.SelectedIndex)
+        Refresh-Lists
+    }
+})
+
+$btnClearSelected.Add_Click({
+    $AppData.SelectedDrivers.Clear()
+    Refresh-Lists
+})
+
+$btnDownload.Add_Click({
+    if ($AppData.SelectedDrivers.Count -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show('Please select drivers first!', 'No Drivers Selected', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        return
+    }
+    
+    foreach ($driverName in $AppData.SelectedDrivers) {
+        $driver = $AppData.Database | Where-Object { $_.name -eq $driverName }
+        if ($driver) {
+            if ($driver.type -and $driver.type -eq 'command') {
+                try {
+                    $cmdString = $driver.url
+                    $expanded = $ExecutionContext.InvokeCommand.ExpandString($cmdString)
+                } catch {
+                    $expanded = $driver.url
+                }
+                # Save command to a temporary .ps1 and execute it to avoid quoting/expansion issues
+                $tmpFile = Join-Path -Path $env:TEMP -ChildPath ("drv_install_{0}_{1}.ps1" -f ($driver.id -or [guid]::NewGuid().ToString()), (Get-Random))
+                Set-Content -Path $tmpFile -Value $expanded -Encoding UTF8 -Force
+                try {
+                    Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmpFile`"" -Wait -NoNewWindow
+                } finally {
+                    Remove-Item -Path $tmpFile -ErrorAction SilentlyContinue
+                }
+            } elseif ($driver.url -match '^\s*powershell\s+-Command') {
+                # Legacy support for 'powershell -Command "..."' - extract inner command and run via temp file
+                $cmdString = $driver.url -replace '^\s*powershell\s+-Command\s+"?', '' -replace '"?$', ''
+                try { $expanded = $ExecutionContext.InvokeCommand.ExpandString($cmdString) } catch { $expanded = $cmdString }
+                $tmpFile = Join-Path -Path $env:TEMP -ChildPath ("drv_install_{0}_{1}.ps1" -f (($driver.id -or [guid]::NewGuid().ToString())), (Get-Random))
+                Set-Content -Path $tmpFile -Value $expanded -Encoding UTF8 -Force
+                try {
+                    Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmpFile`"" -Wait -NoNewWindow
+                } finally {
+                    Remove-Item -Path $tmpFile -ErrorAction SilentlyContinue
+                }
+            } else {
+                # Open URL in default browser or launch executable link
+                Start-Process -FilePath $driver.url
+            }
+        }
+    }
+})
+
+$btnRefreshDB.Add_Click({
+    Load-Database
+    Refresh-Lists
+})
+
+# ============================================================================
+# Main Form Setup
+# ============================================================================
+$main.Controls.Add($welcomePanel)
+
+$main.ShowDialog()
