@@ -166,8 +166,11 @@ function New-CustomButton {
     $button.Cursor = [System.Windows.Forms.Cursors]::Hand
     
     # Use sender param in event handlers to avoid property resolution issues
-    $button.Add_MouseEnter( { param($s,$e) $s.BackColor = $Colors.AccentHover } )
-    $button.Add_MouseLeave( { param($s,$e) $s.BackColor = $BGColor } )
+    if (-not $BGColor) { $BGColor = $Colors.Accent }
+    $bgLocal = $BGColor
+    $hoverLocal = $Colors.AccentHover
+    $button.Add_MouseEnter( { param($s,$e) $s.BackColor = $hoverLocal } )
+    $button.Add_MouseLeave( { param($s,$e) $s.BackColor = $bgLocal } )
     
     return $button
 }
@@ -333,34 +336,39 @@ $contentPanel.Controls.Add($rightPanel)
 
 # Responsive layout: adjust panels when window resizes
 $main.Add_Resize({
-    $w = $main.ClientSize.Width
-    $h = $main.ClientSize.Height
-    $leftW = [int]($w * 0.25)
-    $midW = [int]($w * 0.50)
-    $rightW = $w - $leftW - $midW
+    try {
+        $w = [int]$main.ClientSize.Width
+        $h = [int]$main.ClientSize.Height
+        $leftW = [int]([double]$w * 0.25)
+        $midW = [int]([double]$w * 0.50)
+        $rightW = [int]($w - $leftW - $midW)
 
-    $leftPanel.Location = New-Object System.Drawing.Point(0,0)
-    $leftPanel.Size = New-Object System.Drawing.Size($leftW, $h)
-    $middlePanel.Location = New-Object System.Drawing.Point($leftW,0)
-    $middlePanel.Size = New-Object System.Drawing.Size($midW, $h)
-    $rightPanel.Location = New-Object System.Drawing.Point($leftW + $midW, 0)
-    $rightPanel.Size = New-Object System.Drawing.Size($rightW, $h)
+        $leftPanel.Location = New-Object System.Drawing.Point(0,0)
+        $leftPanel.Size = New-Object System.Drawing.Size($leftW, $h)
+        $middlePanel.Location = New-Object System.Drawing.Point($leftW,0)
+        $middlePanel.Size = New-Object System.Drawing.Size($midW, $h)
+        $rightPanel.Location = New-Object System.Drawing.Point($leftW + $midW, 0)
+        $rightPanel.Size = New-Object System.Drawing.Size($rightW, $h)
 
-    # Adjust inner control sizes
-    $lbSelected.Size = New-Object System.Drawing.Size($leftPanel.Width - 20, $h - 140)
-    $lbDatabase.Size = New-Object System.Drawing.Size($middlePanel.Width - 20, $h - 180)
-    $lbDevices.Size = New-Object System.Drawing.Size($rightPanel.Width - 20, $h - 170)
+        # Adjust inner control sizes
+        $lbSelected.Size = New-Object System.Drawing.Size([int]($leftPanel.Width - 20), [int]($h - 140))
+        $lbDatabase.Size = New-Object System.Drawing.Size([int]($middlePanel.Width - 20), [int]($h - 180))
+        $lbDevices.Size = New-Object System.Drawing.Size([int]($rightPanel.Width - 20), [int]($h - 170))
 
-    # Buttons positions
-    $btnRemoveSelected.Location = New-Object System.Drawing.Point(10, $h - 115)
-    $btnClearSelected.Location = New-Object System.Drawing.Point(150, $h - 115)
-    $btnRefreshDB.Location = New-Object System.Drawing.Point(10, $h - 75)
-    $btnDownload.Location = New-Object System.Drawing.Point(10, $h - 95)
-    $btnBack.Location = New-Object System.Drawing.Point(230, $h - 95)
+        # Buttons positions
+        $btnRemoveSelected.Location = New-Object System.Drawing.Point(10, [int]($h - 115))
+        $btnClearSelected.Location = New-Object System.Drawing.Point(150, [int]($h - 115))
+        $btnRefreshDB.Location = New-Object System.Drawing.Point(10, [int]($h - 75))
+        $btnDownload.Location = New-Object System.Drawing.Point(10, [int]($h - 95))
+        $btnBack.Location = New-Object System.Drawing.Point(230, [int]($h - 95))
+    } catch {
+        # ignore resize errors
+    }
 })
 
 # Background image support: use bg.png in script directory if available
-$BackgroundImagePath = Join-Path -Path $PSScriptRoot -ChildPath 'bg.png'
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
+$BackgroundImagePath = Join-Path -Path $ScriptDir -ChildPath 'bg.png'
 if (Test-Path $BackgroundImagePath) {
     try {
         $main.BackgroundImage = [System.Drawing.Image]::FromFile($BackgroundImagePath)
