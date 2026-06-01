@@ -25,52 +25,146 @@ $login = New-Object System.Windows.Forms.Form
 $login.Text = 'Admin Login'
 $login.Size = New-Object System.Drawing.Size(360,150)
 $login.StartPosition = 'CenterScreen'
-$lbl = New-Object System.Windows.Forms.Label; $lbl.Text='Password:'; $lbl.Location = '10,20'; $lbl.AutoSize=$true
-$txt = New-Object System.Windows.Forms.TextBox; $txt.Location='90,18'; $txt.Width=240; $txt.UseSystemPasswordChar = $true
-$btn = New-Object System.Windows.Forms.Button; $btn.Text='Login'; $btn.Location='90,60';
-$login.Controls.AddRange(@($lbl,$txt,$btn))
+
+$lbl = New-Object System.Windows.Forms.Label
+$lbl.Text = 'Password:'
+$lbl.Location = New-Object System.Drawing.Point(10, 20)
+$lbl.AutoSize = $true
+
+$txt = New-Object System.Windows.Forms.TextBox
+$txt.Location = New-Object System.Drawing.Point(90, 18)
+$txt.Width = 240
+$txt.UseSystemPasswordChar = $true
+
+$btn = New-Object System.Windows.Forms.Button
+$btn.Text = 'Login'
+$btn.Location = New-Object System.Drawing.Point(90, 60)
+$btn.Width = 80
+
+$login.Controls.AddRange(@($lbl, $txt, $btn))
+
 $allow = $false
-$btn.Add_Click({ if ((Get-HashBase64 $txt.Text) -eq $passwdHash) { $allow=$true; $login.Close() } else { [System.Windows.Forms.MessageBox]::Show('Incorrect password','Error') | Out-Null } })
+
+$loginHandler = {
+    param($s, $e)
+    $pwd = $txt.Text
+    $hash = Get-HashBase64 $pwd
+    if ($hash -eq $passwdHash) {
+        $allow = $true
+        $login.Close()
+    } else {
+        [System.Windows.Forms.MessageBox]::Show('Incorrect password', 'Error') | Out-Null
+        $txt.Clear()
+        $txt.Focus()
+    }
+}
+
+$btn.Add_Click($loginHandler)
+$txt.Add_KeyDown({
+    param($s, $e)
+    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Return) {
+        $e.SuppressKeyDown = $true
+        & $loginHandler
+    }
+})
+
+$login.Add_Shown({ $txt.Focus() })
 $login.ShowDialog()
-if (-not $allow) { Write-Host 'Login cancelled'; return }
+
+if (-not $allow) { 
+    Write-Host 'Admin login denied'
+    exit 
+}
 
 # Admin main form
 $db = Load-Database
+
 $main = New-Object System.Windows.Forms.Form
 $main.Text = 'Driver DB Admin'
-$main.Size = New-Object System.Drawing.Size(800,500)
+$main.Size = New-Object System.Drawing.Size(800, 500)
 $main.StartPosition = 'CenterScreen'
 
-$lb = New-Object System.Windows.Forms.ListBox; $lb.Dock='Left'; $lb.Width=350
-$panel = New-Object System.Windows.Forms.Panel; $panel.Dock='Fill'
-$lblName = New-Object System.Windows.Forms.Label; $lblName.Text='Name'; $lblName.Location='10,10';
-$txtName = New-Object System.Windows.Forms.TextBox; $txtName.Location='10,30'; $txtName.Width=380
-$lblPattern = New-Object System.Windows.Forms.Label; $lblPattern.Text='Pattern (regex)'; $lblPattern.Location='10,60';
-$txtPattern = New-Object System.Windows.Forms.TextBox; $txtPattern.Location='10,80'; $txtPattern.Width=380
-$lblUrl = New-Object System.Windows.Forms.Label; $lblUrl.Text='URL or Command'; $lblUrl.Location='10,110';
-$txtUrl = New-Object System.Windows.Forms.TextBox; $txtUrl.Location='10,130'; $txtUrl.Width=380; $txtUrl.Height=60; $txtUrl.Multiline=$true
-$lblType = New-Object System.Windows.Forms.Label; $lblType.Text='Type'; $lblType.Location='10,200';
-$cbType = New-Object System.Windows.Forms.ComboBox; $cbType.Items.AddRange(@('url','command')); $cbType.Location='10,220'; $cbType.Width=120
-$btnAdd = New-Object System.Windows.Forms.Button; $btnAdd.Text='Add'; $btnAdd.Location='10,260'
-$btnUpdate = New-Object System.Windows.Forms.Button; $btnUpdate.Text='Update'; $btnUpdate.Location='90,260'
-$btnDelete = New-Object System.Windows.Forms.Button; $btnDelete.Text='Delete'; $btnDelete.Location='170,260'
-$btnSave = New-Object System.Windows.Forms.Button; $btnSave.Text='Save DB'; $btnSave.Location='250,260'
+$lb = New-Object System.Windows.Forms.ListBox
+$lb.Dock = 'Left'
+$lb.Width = 350
 
-$panel.Controls.AddRange(@($lblName,$txtName,$lblPattern,$txtPattern,$lblUrl,$txtUrl,$lblType,$cbType,$btnAdd,$btnUpdate,$btnDelete,$btnSave))
-$main.Controls.AddRange(@($lb,$panel))
+$panel = New-Object System.Windows.Forms.Panel
+$panel.Dock = 'Fill'
 
-function Refresh-ListBox() { $lb.Items.Clear(); foreach ($d in $db) { $lb.Items.Add("$($d.id): $($d.name) [$($d.type)]") | Out-Null } }
+$lblName = New-Object System.Windows.Forms.Label; $lblName.Text = 'Name'; $lblName.Location = New-Object System.Drawing.Point(10, 10)
+$txtName = New-Object System.Windows.Forms.TextBox; $txtName.Location = New-Object System.Drawing.Point(10, 30); $txtName.Width = 380
+
+$lblPattern = New-Object System.Windows.Forms.Label; $lblPattern.Text = 'Pattern (regex)'; $lblPattern.Location = New-Object System.Drawing.Point(10, 60)
+$txtPattern = New-Object System.Windows.Forms.TextBox; $txtPattern.Location = New-Object System.Drawing.Point(10, 80); $txtPattern.Width = 380
+
+$lblUrl = New-Object System.Windows.Forms.Label; $lblUrl.Text = 'URL or Command'; $lblUrl.Location = New-Object System.Drawing.Point(10, 110)
+$txtUrl = New-Object System.Windows.Forms.TextBox; $txtUrl.Location = New-Object System.Drawing.Point(10, 130); $txtUrl.Width = 380; $txtUrl.Height = 60; $txtUrl.Multiline = $true
+
+$lblType = New-Object System.Windows.Forms.Label; $lblType.Text = 'Type'; $lblType.Location = New-Object System.Drawing.Point(10, 200)
+$cbType = New-Object System.Windows.Forms.ComboBox; $cbType.Items.AddRange(@('url', 'command')); $cbType.Location = New-Object System.Drawing.Point(10, 220); $cbType.Width = 120
+
+$btnAdd = New-Object System.Windows.Forms.Button; $btnAdd.Text = 'Add'; $btnAdd.Location = New-Object System.Drawing.Point(10, 260)
+$btnUpdate = New-Object System.Windows.Forms.Button; $btnUpdate.Text = 'Update'; $btnUpdate.Location = New-Object System.Drawing.Point(90, 260)
+$btnDelete = New-Object System.Windows.Forms.Button; $btnDelete.Text = 'Delete'; $btnDelete.Location = New-Object System.Drawing.Point(170, 260)
+$btnSave = New-Object System.Windows.Forms.Button; $btnSave.Text = 'Save DB'; $btnSave.Location = New-Object System.Drawing.Point(250, 260)
+
+$panel.Controls.AddRange(@($lblName, $txtName, $lblPattern, $txtPattern, $lblUrl, $txtUrl, $lblType, $cbType, $btnAdd, $btnUpdate, $btnDelete, $btnSave))
+$main.Controls.AddRange(@($lb, $panel))
+
+function Refresh-ListBox() { 
+    $lb.Items.Clear()
+    foreach ($d in $db) { 
+        $lb.Items.Add("$($d.id): $($d.name) [$($d.type)]") | Out-Null 
+    } 
+}
 Refresh-ListBox
 
-$lb.Add_SelectedIndexChanged({ if ($lb.SelectedItem) { $id = ($lb.SelectedItem -split ':',2)[0].Trim(); $item = $db | Where-Object { $_.id -eq $id } | Select-Object -First 1; if ($item) { $txtName.Text = $item.name; $txtPattern.Text = $item.pattern; $txtUrl.Text = $item.url; $cbType.SelectedItem = $item.type } } })
+$lb.Add_SelectedIndexChanged({
+    if ($lb.SelectedItem) {
+        $id = ($lb.SelectedItem -split ':', 2)[0].Trim()
+        $item = $db | Where-Object { $_.id -eq $id } | Select-Object -First 1
+        if ($item) {
+            $txtName.Text = $item.name
+            $txtPattern.Text = $item.pattern
+            $txtUrl.Text = $item.url
+            $cbType.SelectedItem = $item.type
+        }
+    }
+})
 
 $btnAdd.Add_Click({
     $new = @{ id = ([guid]::NewGuid().ToString()); name = $txtName.Text; pattern = $txtPattern.Text; url = $txtUrl.Text; type = ($cbType.SelectedItem -or 'url'); category = '' }
     $db += $new
     Refresh-ListBox
+    $txtName.Clear()
+    $txtPattern.Clear()
+    $txtUrl.Clear()
+    $cbType.SelectedIndex = -1
 })
-$btnUpdate.Add_Click({ if (-not $lb.SelectedItem) { return }; $id = ($lb.SelectedItem -split ':',2)[0].Trim(); $idx = ($db | ForEach-Object -Begin { $i=0 } -Process { if ($_.id -eq $id) { $_; break } else { $i++ } }); $item = $db | Where-Object { $_.id -eq $id } | Select-Object -First 1; if ($item) { $item.name = $txtName.Text; $item.pattern = $txtPattern.Text; $item.url = $txtUrl.Text; $item.type = ($cbType.SelectedItem -or 'url'); Refresh-ListBox } })
-$btnDelete.Add_Click({ if (-not $lb.SelectedItem) { return }; $id = ($lb.SelectedItem -split ':',2)[0].Trim(); $db = $db | Where-Object { $_.id -ne $id }; Refresh-ListBox })
-$btnSave.Add_Click({ Save-Database $db; [System.Windows.Forms.MessageBox]::Show('Saved','Info') | Out-Null })
 
-try { [void]$main.ShowDialog() } catch { [System.Windows.Forms.MessageBox]::Show("Admin panel error: $($_.Exception.Message)", 'Error') | Out-Null }
+$btnUpdate.Add_Click({
+    if (-not $lb.SelectedItem) { return }
+    $id = ($lb.SelectedItem -split ':', 2)[0].Trim()
+    $item = $db | Where-Object { $_.id -eq $id } | Select-Object -First 1
+    if ($item) {
+        $item.name = $txtName.Text
+        $item.pattern = $txtPattern.Text
+        $item.url = $txtUrl.Text
+        $item.type = ($cbType.SelectedItem -or 'url')
+        Refresh-ListBox
+    }
+})
+
+$btnDelete.Add_Click({
+    if (-not $lb.SelectedItem) { return }
+    $id = ($lb.SelectedItem -split ':', 2)[0].Trim()
+    $db = @($db | Where-Object { $_.id -ne $id })
+    Refresh-ListBox
+})
+
+$btnSave.Add_Click({
+    Save-Database $db
+    [System.Windows.Forms.MessageBox]::Show('Saved', 'Info') | Out-Null
+})
+
+[void]$main.ShowDialog()
