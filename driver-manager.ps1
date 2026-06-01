@@ -1,14 +1,17 @@
-# Driver Manager - Minimal Simple UI
+# Driver Manager - Minimal Simple UI (clean)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-# Database path
+# DB path
 $DBDir = Join-Path -Path $env:APPDATA -ChildPath 'DriverManager'
 if (-not (Test-Path $DBDir)) { New-Item -Path $DBDir -ItemType Directory -Force | Out-Null }
 $DBPath = Join-Path -Path $DBDir -ChildPath 'drivers-db.json'
 
-function Load-Database() { if (-not (Test-Path $DBPath)) { return @() } ; try { Get-Content -Path $DBPath -Raw | ConvertFrom-Json } catch { @() } }
+function Load-Database() {
+    if (-not (Test-Path $DBPath)) { return @() }
+    try { Get-Content -Path $DBPath -Raw | ConvertFrom-Json } catch { @() }
+}
 function Save-Database($db) { $db | ConvertTo-Json -Depth 5 | Set-Content -Path $DBPath -Encoding UTF8 }
 
 function Detect-Devices() {
@@ -22,7 +25,7 @@ function Detect-Devices() {
     return $res
 }
 
-# Ensure sample DB
+# Ensure a sample DB exists
 if (-not (Test-Path $DBPath)) {
     $sample = @(
         @{ id='1'; name='Global NVIDIA Driver'; pattern='NVIDIA|GeForce|RTX|GTX'; url='https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe'; type='url'; category='GPU' },
@@ -40,7 +43,7 @@ $form.Size = New-Object System.Drawing.Size(1000,600)
 $form.StartPosition = 'CenterScreen'
 $form.Font = New-Object System.Drawing.Font('Segoe UI',10)
 
-# Layout: 3 columns
+# 3-column layout
 $layout = New-Object System.Windows.Forms.TableLayoutPanel
 $layout.Dock = 'Fill'
 $layout.ColumnCount = 3
@@ -75,29 +78,45 @@ $layout.Controls.Add($left,0,0)
 $layout.Controls.Add($mid,1,0)
 $layout.Controls.Add($right,2,0)
 
-# Footer buttons - simple
+# Footer - simple buttons
 $footer = New-Object System.Windows.Forms.Panel
 $footer.Dock = 'Bottom'
-$footer.Height = 50
-$btnScan = New-Object System.Windows.Forms.Button; $btnScan.Text='Scan Devices'; $btnScan.Width=120; $btnScan.Height=32
-$btnAdd = New-Object System.Windows.Forms.Button; $btnAdd.Text='Add ->'; $btnAdd.Width=90; $btnAdd.Height=32
-$btnRemove = New-Object System.Windows.Forms.Button; $btnRemove.Text='Remove'; $btnRemove.Width=90; $btnRemove.Height=32
-$btnInstall = New-Object System.Windows.Forms.Button; $btnInstall.Text='Install Selected'; $btnInstall.Width=140; $btnInstall.Height=32
-$btnExit = New-Object System.Windows.Forms.Button; $btnExit.Text='Exit'; $btnExit.Width=80; $btnExit.Height=32
+$footer.Height = 52
+$btnScan = New-Object System.Windows.Forms.Button; $btnScan.Text='Scan Devices'; $btnScan.Width=120; $btnScan.Height=34
+$btnAdd = New-Object System.Windows.Forms.Button; $btnAdd.Text='Add ->'; $btnAdd.Width=90; $btnAdd.Height=34
+$btnRemove = New-Object System.Windows.Forms.Button; $btnRemove.Text='Remove'; $btnRemove.Width=90; $btnRemove.Height=34
+$btnInstall = New-Object System.Windows.Forms.Button; $btnInstall.Text='Install Selected'; $btnInstall.Width=140; $btnInstall.Height=34
+$btnExit = New-Object System.Windows.Forms.Button; $btnExit.Text='Exit'; $btnExit.Width=80; $btnExit.Height=34
 
-$footFlow = New-Object System.Windows.Forms.FlowLayoutPanel
-$footFlow.Dock = 'Fill'
-$footFlow.Controls.AddRange(@($btnScan,$btnAdd,$btnRemove,$btnInstall))
-$rightMost = New-Object System.Windows.Forms.Panel; $rightMost.Dock='Right'; $rightMost.Width=100; $rightMost.Controls.Add($btnExit); $btnExit.Dock='Fill'
-$footer.Controls.Add($rightMost); $footer.Controls.Add($footFlow)
+$flow = New-Object System.Windows.Forms.FlowLayoutPanel
+$flow.Dock = 'Fill'
+$flow.Controls.AddRange(@($btnScan,$btnAdd,$btnRemove,$btnInstall))
+$rightPanel = New-Object System.Windows.Forms.Panel; $rightPanel.Dock='Right'; $rightPanel.Width=100; $rightPanel.Controls.Add($btnExit); $btnExit.Dock='Fill'
+$footer.Controls.Add($rightPanel); $footer.Controls.Add($flow)
 $form.Controls.Add($footer)
 
-# Fill DB listnforeach ($d in $db) { $lbDB.Items.Add($d.name) | Out-Null }
+# Populate DB list
+foreach ($d in $db) { $lbDB.Items.Add($d.name) | Out-Null }
 
-# Eventsn$btnScan.Add_Click({ $lbDevices.Items.Clear(); $devs = Detect-Devices; foreach ($dv in $devs) { $lbDevices.Items.Add("$($dv.Type): $($dv.Name)") | Out-Null } })
+# Events
+$btnScan.Add_Click({ $lbDevices.Items.Clear(); $devs = Detect-Devices(); foreach ($dv in $devs) { $lbDevices.Items.Add("$($dv.Type): $($dv.Name)") | Out-Null } })
 $btnAdd.Add_Click({ foreach ($i in $lbDB.SelectedItems) { $lbSelected.Items.Add($i) | Out-Null } })
 $btnRemove.Add_Click({ for ($i = $lbSelected.Items.Count - 1; $i -ge 0; $i--) { if ($lbSelected.SelectedIndices -contains $i) { $lbSelected.Items.RemoveAt($i) } } })
-$btnInstall.Add_Click({ if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected','Info') | Out-Null; return }; foreach ($name in $lbSelected.Items) { $driver = $db | Where-Object { $_.name -eq $name } | Select-Object -First 1; if (-not $driver) { continue }; if ($driver.type -eq 'command') { $expanded = $ExecutionContext.InvokeCommand.ExpandString($driver.url); $tmp = Join-Path $env:TEMP ("drv_{0}.ps1" -f ([guid]::NewGuid().ToString())); Set-Content -Path $tmp -Value $expanded -Encoding UTF8 -Force; try { Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`"" -Wait } finally { Remove-Item -Path $tmp -ErrorAction SilentlyContinue } } else { try { Start-Process -FilePath $driver.url } catch { } } } })
+$btnInstall.Add_Click({
+    if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected','Info') | Out-Null; return }
+    foreach ($name in $lbSelected.Items) {
+        $driver = $db | Where-Object { $_.name -eq $name } | Select-Object -First 1
+        if (-not $driver) { continue }
+        if ($driver.type -eq 'command') {
+            $expanded = $ExecutionContext.InvokeCommand.ExpandString($driver.url)
+            $tmp = Join-Path $env:TEMP ("drv_{0}.ps1" -f ([guid]::NewGuid().ToString()))
+            Set-Content -Path $tmp -Value $expanded -Encoding UTF8 -Force
+            try { Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`"" -Wait } finally { Remove-Item -Path $tmp -ErrorAction SilentlyContinue }
+        } else {
+            try { Start-Process -FilePath $driver.url } catch { }
+        }
+    }
+})
 $btnExit.Add_Click({ $form.Close() })
 
 [void]$form.ShowDialog()
