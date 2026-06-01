@@ -159,7 +159,7 @@ $lbDevices.Add_DoubleClick({
     $sel = $lbDevices.SelectedItem
     if (-not $sel) { return }
     $name = ($sel -split ':',2)[1].Trim()
-    $matches = $db | Where-Object { $name -match ($_ .pattern) }
+    $matches = $db | Where-Object { $name -match $_.pattern }
     $lbSelected.Items.Clear()
     foreach ($m in $matches) { $lbSelected.Items.Add("$($m.name) [$($m.category)]") | Out-Null }
 })

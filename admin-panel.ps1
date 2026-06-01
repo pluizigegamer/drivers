@@ -32,11 +32,10 @@ $login.Controls.AddRange(@($lbl,$txt,$btn))
 $allow = $false
 $btn.Add_Click({ if ((Get-HashBase64 $txt.Text) -eq $passwdHash) { $allow=$true; $login.Close() } else { [System.Windows.Forms.MessageBox]::Show('Incorrect password','Error') | Out-Null } })
 $login.ShowDialog()
-if (-not $allow) { exit }
+if (-not $allow) { Write-Host 'Login cancelled'; return }
 
 # Admin main form
-$db = Load-Database
-$main = New-Object System.Windows.Forms.Form
+$db = Load-Databasen$main = New-Object System.Windows.Forms.Form
 $main.Text = 'Driver DB Admin'
 $main.Size = New-Object System.Drawing.Size(800,500)
 $main.StartPosition = 'CenterScreen'
@@ -73,4 +72,4 @@ $btnUpdate.Add_Click({ if (-not $lb.SelectedItem) { return }; $id = ($lb.Selecte
 $btnDelete.Add_Click({ if (-not $lb.SelectedItem) { return }; $id = ($lb.SelectedItem -split ':',2)[0].Trim(); $db = $db | Where-Object { $_.id -ne $id }; Refresh-ListBox })
 $btnSave.Add_Click({ Save-Database $db; [System.Windows.Forms.MessageBox]::Show('Saved','Info') | Out-Null })
 
-[void]$main.ShowDialog()
+try { [void]$main.ShowDialog() } catch { [System.Windows.Forms.MessageBox]::Show("Admin panel error: $($_.Exception.Message)", 'Error') | Out-Null }
