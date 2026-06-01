@@ -1,4 +1,4 @@
-# Driver Manager - Minimal Simple UI (clean)
+# Driver Manager - Minimal functional UI (restore)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
@@ -25,25 +25,24 @@ function Detect-Devices() {
     return $res
 }
 
-# Ensure a sample DB exists
+# ensure sample DB exists
 if (-not (Test-Path $DBPath)) {
     $sample = @(
-        @{ id='1'; name='Global NVIDIA Driver'; pattern='NVIDIA|GeForce|RTX|GTX'; url='https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe'; type='url'; category='GPU' },
-        @{ id='2'; name='AMD Installer (command)'; pattern='AMD|Radeon|RX|Vega'; url='Invoke-WebRequest -Uri "https://drivers.amd.com/drivers/installer/26.10/whql/amd-software-adrenalin-edition-26.5.2-minimalsetup-260513_web.exe" -OutFile "$env:USERPROFILE\\Downloads\\amd_driver.exe"; Start-Process -FilePath "$env:USERPROFILE\\Downloads\\amd_driver.exe" -Wait'; type='command'; category='GPU' }
+        @{ id='1'; name='Global NVIDIA Driver'; pattern='NVIDIA|GeForce|RTX|GTX'; url='https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe'; type='url'; category='GPU' }
     )
     Save-Database $sample
 }
 
 $db = Load-Database
 
-# Simple Form
+# Form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Driver Manager - Simple'
-$form.Size = New-Object System.Drawing.Size(1000,600)
+$form.Text = 'Driver Manager'
+$form.Size = New-Object System.Drawing.Size(1000,700)
 $form.StartPosition = 'CenterScreen'
 $form.Font = New-Object System.Drawing.Font('Segoe UI',10)
 
-# 3-column layout
+# Layout panel (3 columns)
 $layout = New-Object System.Windows.Forms.TableLayoutPanel
 $layout.Dock = 'Fill'
 $layout.ColumnCount = 3
@@ -53,70 +52,79 @@ $layout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Wi
 $layout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent,33)))
 $form.Controls.Add($layout)
 
-# Left - Selected
+# Left - selected
 $left = New-Object System.Windows.Forms.Panel
 $left.Dock = 'Fill'
-$lblLeft = New-Object System.Windows.Forms.Label; $lblLeft.Text='Selected Drivers'; $lblLeft.Dock='Top'
-$lbSelected = New-Object System.Windows.Forms.ListBox; $lbSelected.Dock='Fill'
+$lblLeft = New-Object System.Windows.Forms.Label; $lblLeft.Text = 'Selected Drivers'; $lblLeft.Dock = 'Top'
+$lbSelected = New-Object System.Windows.Forms.ListBox; $lbSelected.Dock = 'Fill'
 $left.Controls.Add($lbSelected); $left.Controls.Add($lblLeft)
 
-# Middle - Database
+# Middle - DB
 $mid = New-Object System.Windows.Forms.Panel
 $mid.Dock = 'Fill'
-$lblMid = New-Object System.Windows.Forms.Label; $lblMid.Text='Available Drivers'; $lblMid.Dock='Top'
-$lbDB = New-Object System.Windows.Forms.ListBox; $lbDB.Dock='Fill'
-$mid.Controls.Add($lbDB); $mid.Controls.Add($lblMid)
+$lblDB = New-Object System.Windows.Forms.Label; $lblDB.Text = 'Available Drivers'; $lblDB.Dock = 'Top'
+$lbDB = New-Object System.Windows.Forms.ListBox; $lbDB.Dock = 'Fill'
+$mid.Controls.Add($lbDB); $mid.Controls.Add($lblDB)
 
 # Right - Devices
 $right = New-Object System.Windows.Forms.Panel
 $right.Dock = 'Fill'
-$lblRight = New-Object System.Windows.Forms.Label; $lblRight.Text='Detected Devices'; $lblRight.Dock='Top'
-$lbDevices = New-Object System.Windows.Forms.ListBox; $lbDevices.Dock='Fill'
-$right.Controls.Add($lbDevices); $right.Controls.Add($lblRight)
+$lblDev = New-Object System.Windows.Forms.Label; $lblDev.Text = 'Detected Devices'; $lblDev.Dock = 'Top'
+$lbDevices = New-Object System.Windows.Forms.ListBox; $lbDevices.Dock = 'Fill'
+$right.Controls.Add($lbDevices); $right.Controls.Add($lblDev)
 
 $layout.Controls.Add($left,0,0)
 $layout.Controls.Add($mid,1,0)
 $layout.Controls.Add($right,2,0)
 
-# Footer - simple buttons
+# Footer buttons
 $footer = New-Object System.Windows.Forms.Panel
 $footer.Dock = 'Bottom'
-$footer.Height = 52
-$btnScan = New-Object System.Windows.Forms.Button; $btnScan.Text='Scan Devices'; $btnScan.Width=120; $btnScan.Height=34
-$btnAdd = New-Object System.Windows.Forms.Button; $btnAdd.Text='Add ->'; $btnAdd.Width=90; $btnAdd.Height=34
-$btnRemove = New-Object System.Windows.Forms.Button; $btnRemove.Text='Remove'; $btnRemove.Width=90; $btnRemove.Height=34
-$btnInstall = New-Object System.Windows.Forms.Button; $btnInstall.Text='Install Selected'; $btnInstall.Width=140; $btnInstall.Height=34
-$btnExit = New-Object System.Windows.Forms.Button; $btnExit.Text='Exit'; $btnExit.Width=80; $btnExit.Height=34
+$footer.Height = 56
+$scanBtn = New-Object System.Windows.Forms.Button; $scanBtn.Text='Scan'; $scanBtn.Width=100
+$addBtn = New-Object System.Windows.Forms.Button; $addBtn.Text='Add'; $addBtn.Width=100
+$removeBtn = New-Object System.Windows.Forms.Button; $removeBtn.Text='Remove'; $removeBtn.Width=100
+$installBtn = New-Object System.Windows.Forms.Button; $installBtn.Text='Install Selected'; $installBtn.Width=140
+$exitBtn = New-Object System.Windows.Forms.Button; $exitBtn.Text='Exit'; $exitBtn.Width=90
 
 $flow = New-Object System.Windows.Forms.FlowLayoutPanel
 $flow.Dock = 'Fill'
-$flow.Controls.AddRange(@($btnScan,$btnAdd,$btnRemove,$btnInstall))
-$rightPanel = New-Object System.Windows.Forms.Panel; $rightPanel.Dock='Right'; $rightPanel.Width=100; $rightPanel.Controls.Add($btnExit); $btnExit.Dock='Fill'
+$flow.Controls.AddRange(@($scanBtn,$addBtn,$removeBtn,$installBtn))
+$rightPanel = New-Object System.Windows.Forms.Panel; $rightPanel.Dock='Right'; $rightPanel.Width=100
+$rightPanel.Controls.Add($exitBtn); $exitBtn.Dock='Fill'
 $footer.Controls.Add($rightPanel); $footer.Controls.Add($flow)
 $form.Controls.Add($footer)
 
-# Populate DB list
+# populate db list
 foreach ($d in $db) { $lbDB.Items.Add($d.name) | Out-Null }
 
-# Events
-$btnScan.Add_Click({ $lbDevices.Items.Clear(); $devs = Detect-Devices(); foreach ($dv in $devs) { $lbDevices.Items.Add("$($dv.Type): $($dv.Name)") | Out-Null } })
-$btnAdd.Add_Click({ foreach ($i in $lbDB.SelectedItems) { $lbSelected.Items.Add($i) | Out-Null } })
-$btnRemove.Add_Click({ for ($i = $lbSelected.Items.Count - 1; $i -ge 0; $i--) { if ($lbSelected.SelectedIndices -contains $i) { $lbSelected.Items.RemoveAt($i) } } })
-$btnInstall.Add_Click({
+# Eventsn$scanBtn.Add_Click({
+    $lbDevices.Items.Clear()
+    $devs = Detect-Devices()
+    foreach ($dv in $devs) { $lbDevices.Items.Add("$($dv.Type): $($dv.Name)") | Out-Null }
+})
+
+$addBtn.Add_Click({ foreach ($i in $lbDB.SelectedItems) { $lbSelected.Items.Add($i) | Out-Null } })
+
+$removeBtn.Add_Click({ for ($i=$lbSelected.Items.Count-1; $i -ge 0; $i--) { if ($lbSelected.SelectedIndices -contains $i) { $lbSelected.Items.RemoveAt($i) } } })
+
+$installBtn.Add_Click({
     if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected','Info') | Out-Null; return }
     foreach ($name in $lbSelected.Items) {
         $driver = $db | Where-Object { $_.name -eq $name } | Select-Object -First 1
         if (-not $driver) { continue }
         if ($driver.type -eq 'command') {
-            $expanded = $ExecutionContext.InvokeCommand.ExpandString($driver.url)
+            $script = $ExecutionContext.InvokeCommand.ExpandString($driver.url)
             $tmp = Join-Path $env:TEMP ("drv_{0}.ps1" -f ([guid]::NewGuid().ToString()))
-            Set-Content -Path $tmp -Value $expanded -Encoding UTF8 -Force
-            try { Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmp`"" -Wait } finally { Remove-Item -Path $tmp -ErrorAction SilentlyContinue }
+            Set-Content -Path $tmp -Value $script -Encoding UTF8 -Force
+            Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',$tmp) -Wait
+            Remove-Item -Path $tmp -ErrorAction SilentlyContinue
         } else {
             try { Start-Process -FilePath $driver.url } catch { }
         }
     }
 })
-$btnExit.Add_Click({ $form.Close() })
+
+$exitBtn.Add_Click({ $form.Close() })
 
 [void]$form.ShowDialog()
