@@ -110,7 +110,6 @@ $content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.W
 $content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33)))
 $content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33)))
 $content.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100)))
-$form.Controls.Add($content)
 
 # Left Panel - Selected Drivers
 $pnlSelected = New-Object System.Windows.Forms.Panel
@@ -220,6 +219,7 @@ $btnExit.Tag = @{ Normal = $Colors.Accent; Hover = [System.Drawing.Color]::FromA
 $footer.Controls.Add($btnExit)
 $footer.Controls.Add($btnInstall)
 $form.Controls.Add($footer)
+$form.Controls.Add($content)
 
 # Load Data
 $db = Load-Database
