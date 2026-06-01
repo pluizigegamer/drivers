@@ -1,15 +1,15 @@
-# Driver Manager - Fixed 1920x1080 Dark Mode
+# Driver Manager - Modern Responsive UI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-# Modern Dark Color Scheme (enforced)
+# Modern Color Scheme
 $Colors = @{
-    BG_Dark     = [System.Drawing.Color]::FromArgb(10, 10, 10)
-    BG_Panel    = [System.Drawing.Color]::FromArgb(24, 24, 24)
-    BG_Input    = [System.Drawing.Color]::FromArgb(34, 34, 34)
+    BG_Dark     = [System.Drawing.Color]::FromArgb(20, 20, 20)
+    BG_Panel    = [System.Drawing.Color]::FromArgb(30, 30, 30)
+    BG_Input    = [System.Drawing.Color]::FromArgb(40, 40, 40)
     Text_Primary= [System.Drawing.Color]::FromArgb(240, 240, 240)
-    Text_Secondary=[System.Drawing.Color]::FromArgb(170, 170, 170)
+    Text_Secondary=[System.Drawing.Color]::FromArgb(180, 180, 180)
     Accent      = [System.Drawing.Color]::FromArgb(58, 150, 221)
     AccentHover = [System.Drawing.Color]::FromArgb(75, 175, 255)
     Border      = [System.Drawing.Color]::FromArgb(50, 50, 50)
@@ -70,17 +70,15 @@ function New-StyledListBox() {
     return $lb
 }
 
-# Main Form - Fixed 1920x1080
+# Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Driver Manager'
-$form.ClientSize = New-Object System.Drawing.Size(1920, 1080)
-$form.StartPosition = 'Manual'
-$form.Location = New-Object System.Drawing.Point(0,0)
-$form.FormBorderStyle = 'Sizable'
+$form.Size = New-Object System.Drawing.Size(1200, 750)
+$form.StartPosition = 'CenterScreen'
 $form.BackColor = $Colors.BG_Dark
 $form.ForeColor = $Colors.Text_Primary
 $form.Font = New-Object System.Drawing.Font('Segoe UI', 10)
-$form.MinimumSize = New-Object System.Drawing.Size(1920, 1080)
+$form.MinimumSize = New-Object System.Drawing.Size(800, 500)
 
 # Header
 $header = New-Object System.Windows.Forms.Panel
@@ -137,6 +135,10 @@ $pnlSelected.Controls.Add($lbSelected)
 $pnlSelected.Controls.Add($lblSelected)
 
 $lbSelected.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbSelected.Top = 35
+$lbSelected.Left = 0
+$lbSelected.Width = $pnlSelected.Width - 20
+$lbSelected.Height = $pnlSelected.Height - 90
 
 # Middle Panel - Database
 $pnlDatabase = New-Object System.Windows.Forms.Panel
@@ -161,6 +163,10 @@ $pnlDatabase.Controls.Add($lbDatabase)
 $pnlDatabase.Controls.Add($lblDatabase)
 
 $lbDatabase.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbDatabase.Top = 35
+$lbDatabase.Left = 0
+$lbDatabase.Width = $pnlDatabase.Width - 20
+$lbDatabase.Height = $pnlDatabase.Height - 90
 
 # Right Panel - Devices
 $pnlDevices = New-Object System.Windows.Forms.Panel
@@ -184,6 +190,10 @@ $pnlDevices.Controls.Add($lbDevices)
 $pnlDevices.Controls.Add($lblDevices)
 
 $lbDevices.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbDevices.Top = 35
+$lbDevices.Left = 0
+$lbDevices.Width = $pnlDevices.Width - 20
+$lbDevices.Height = $pnlDevices.Height - 90
 
 $content.Controls.Add($pnlSelected, 0, 0)
 $content.Controls.Add($pnlDatabase, 1, 0)
@@ -198,14 +208,14 @@ $footer.BorderStyle = 'FixedSingle'
 $footer.Padding = New-Object System.Windows.Forms.Padding(10)
 
 $btnInstall = New-StyledButton 'Download & Install Selected'
-$btnInstall.Width = 300
+$btnInstall.Width = 250
 $btnInstall.Dock = 'Left'
 
 $btnExit = New-StyledButton 'Exit'
-$btnExit.Width = 120
+$btnExit.Width = 100
 $btnExit.Dock = 'Right'
-$btnExit.BackColor = [System.Drawing.Color]::FromArgb(200, 60, 60)
-$btnExit.Tag = @{ Normal = [System.Drawing.Color]::FromArgb(200, 60, 60); Hover = [System.Drawing.Color]::FromArgb(255, 80, 80) }
+$btnExit.BackColor = $Colors.Accent
+$btnExit.Tag = @{ Normal = $Colors.Accent; Hover = [System.Drawing.Color]::FromArgb(200, 50, 50) }
 
 $footer.Controls.Add($btnExit)
 $footer.Controls.Add($btnInstall)
