@@ -1,25 +1,26 @@
-# Driver Manager (simplified, robust rewrite)
+# Driver Manager - Modern Responsive UI
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-# Colors (dark theme)
-$C = [ordered]@{
-    Background = [System.Drawing.Color]::FromArgb(30,30,30)
-    Foreground = [System.Drawing.Color]::FromArgb(230,230,230)
-    Accent     = [System.Drawing.Color]::FromArgb(60,63,65)
-    ButtonBG   = [System.Drawing.Color]::FromArgb(45,45,48)
-    ButtonHover= [System.Drawing.Color]::FromArgb(70,70,72)
+# Modern Color Scheme
+$Colors = @{
+    BG_Dark     = [System.Drawing.Color]::FromArgb(20, 20, 20)
+    BG_Panel    = [System.Drawing.Color]::FromArgb(30, 30, 30)
+    BG_Input    = [System.Drawing.Color]::FromArgb(40, 40, 40)
+    Text_Primary= [System.Drawing.Color]::FromArgb(240, 240, 240)
+    Text_Secondary=[System.Drawing.Color]::FromArgb(180, 180, 180)
+    Accent      = [System.Drawing.Color]::FromArgb(58, 150, 221)
+    AccentHover = [System.Drawing.Color]::FromArgb(75, 175, 255)
+    Border      = [System.Drawing.Color]::FromArgb(50, 50, 50)
 }
 
-# Database path
+# Database
 $DBDir = Join-Path -Path $env:APPDATA -ChildPath 'DriverManager'
 if (-not (Test-Path $DBDir)) { New-Item -Path $DBDir -ItemType Directory -Force | Out-Null }
 $DBPath = Join-Path -Path $DBDir -ChildPath 'drivers-db.json'
 
-function Save-Database($db) {
-    $db | ConvertTo-Json -Depth 5 | Set-Content -Path $DBPath -Encoding UTF8
-}
+function Save-Database($db) { $db | ConvertTo-Json -Depth 5 | Set-Content -Path $DBPath -Encoding UTF8 }
 function Load-Database() {
     if (-not (Test-Path $DBPath)) {
         $sample = @(
@@ -43,79 +44,189 @@ function Detect-Devices() {
     return $res
 }
 
-function New-CustomButton($text) {
+function New-StyledButton($text) {
     $b = New-Object System.Windows.Forms.Button
     $b.Text = $text
     $b.FlatStyle = 'Flat'
-    $b.ForeColor = $C.Foreground
-    $b.BackColor = $C.ButtonBG
-    $b.Tag = @{ Normal = $C.ButtonBG; Hover = $C.ButtonHover }
+    $b.ForeColor = $Colors.Text_Primary
+    $b.BackColor = $Colors.Accent
+    $b.FlatAppearance.BorderColor = $Colors.Accent
+    $b.Font = New-Object System.Drawing.Font('Segoe UI', 10, [System.Drawing.FontStyle]::Regular)
+    $b.Height = 40
+    $b.Cursor = [System.Windows.Forms.Cursors]::Hand
+    $b.Tag = @{ Normal = $Colors.Accent; Hover = $Colors.AccentHover }
     $b.Add_MouseEnter({ param($s,$e) $s.BackColor = $s.Tag.Hover })
     $b.Add_MouseLeave({ param($s,$e) $s.BackColor = $s.Tag.Normal })
     return $b
 }
 
-# Build UI
+function New-StyledListBox() {
+    $lb = New-Object System.Windows.Forms.ListBox
+    $lb.BackColor = $Colors.BG_Input
+    $lb.ForeColor = $Colors.Text_Primary
+    $lb.BorderStyle = 'None'
+    $lb.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+    $lb.ItemHeight = 24
+    return $lb
+}
+
+# Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Driver Manager'
-$form.Size = New-Object System.Drawing.Size(1000,700)
+$form.Size = New-Object System.Drawing.Size(1200, 750)
 $form.StartPosition = 'CenterScreen'
-$form.BackColor = $C.Background
-$form.ForeColor = $C.Foreground
+$form.BackColor = $Colors.BG_Dark
+$form.ForeColor = $Colors.Text_Primary
+$form.Font = New-Object System.Drawing.Font('Segoe UI', 10)
+$form.MinimumSize = New-Object System.Drawing.Size(800, 500)
 
-$tl = New-Object System.Windows.Forms.TableLayoutPanel
-$tl.Dock = 'Fill'
-$tl.ColumnCount = 3
-$tl.RowCount = 1
-$tl.ColumnStyles.Add( (New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 30)))
-$tl.ColumnStyles.Add( (New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 40)))
-$tl.ColumnStyles.Add( (New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 30)))
-$tl.RowStyles.Add( (New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100)))
-$form.Controls.Add($tl)
+# Header
+$header = New-Object System.Windows.Forms.Panel
+$header.Dock = 'Top'
+$header.Height = 60
+$header.BackColor = $Colors.BG_Panel
+$header.BorderStyle = 'FixedSingle'
 
-# Left: Selected drivers (to install)
-$leftPanel = New-Object System.Windows.Forms.Panel
-$leftPanel.Dock = 'Fill'
-$lbSelected = New-Object System.Windows.Forms.ListBox
-$lbSelected.Dock = 'Fill'
-$leftPanel.Controls.Add($lbSelected)
+$title = New-Object System.Windows.Forms.Label
+$title.Text = 'Driver Manager Pro'
+$title.Font = New-Object System.Drawing.Font('Segoe UI', 18, [System.Drawing.FontStyle]::Bold)
+$title.ForeColor = $Colors.Accent
+$title.AutoSize = $false
+$title.TextAlign = 'MiddleLeft'
+$title.Dock = 'Fill'
+$title.Padding = New-Object System.Windows.Forms.Padding(20, 0, 0, 0)
 
-# Middle: Database
-$midPanel = New-Object System.Windows.Forms.Panel
-$midPanel.Dock = 'Fill'
-$lbDatabase = New-Object System.Windows.Forms.ListBox
-$lbDatabase.Dock = 'Fill'
-$midPanel.Controls.Add($lbDatabase)
+$header.Controls.Add($title)
+$form.Controls.Add($header)
 
-# Right: Detected devices
-$rightPanel = New-Object System.Windows.Forms.Panel
-$rightPanel.Dock = 'Fill'
-$lbDevices = New-Object System.Windows.Forms.ListBox
-$lbDevices.Dock = 'Fill'
-$rightPanel.Controls.Add($lbDevices)
+# Main Content - Table Layout
+$content = New-Object System.Windows.Forms.TableLayoutPanel
+$content.Dock = 'Fill'
+$content.ColumnCount = 3
+$content.RowCount = 1
+$content.Padding = New-Object System.Windows.Forms.Padding(10)
+$content.ColumnStyles.Clear()
+$content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33)))
+$content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33)))
+$content.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 33)))
+$content.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100)))
+$form.Controls.Add($content)
 
-$tl.Controls.Add($leftPanel,0,0)
-$tl.Controls.Add($midPanel,1,0)
-$tl.Controls.Add($rightPanel,2,0)
+# Left Panel - Selected Drivers
+$pnlSelected = New-Object System.Windows.Forms.Panel
+$pnlSelected.BackColor = $Colors.BG_Panel
+$pnlSelected.Padding = New-Object System.Windows.Forms.Padding(10)
 
-# Bottom controls
-$flow = New-Object System.Windows.Forms.FlowLayoutPanel
-$flow.Dock = 'Bottom'
-$flow.Height = 48
-$flow.BackColor = $C.Accent
-$form.Controls.Add($flow)
+$lblSelected = New-Object System.Windows.Forms.Label
+$lblSelected.Text = 'Selected Drivers'
+$lblSelected.Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Bold)
+$lblSelected.ForeColor = $Colors.Text_Primary
+$lblSelected.AutoSize = $true
 
-$btnScan = New-CustomButton 'Scan Devices'
-$btnAdd = New-CustomButton 'Add Selected'
-$btnInstall = New-CustomButton 'Download / Install'
-$btnExit = New-CustomButton 'Exit'
-$flow.Controls.AddRange(@($btnScan,$btnAdd,$btnInstall,$btnExit))
+$lbSelected = New-StyledListBox
+$lbSelected.SelectionMode = 'MultiExtended'
 
-# Load DB and populate database list
+$btnRemove = New-StyledButton 'Remove'
+$btnRemove.Dock = 'Bottom'
+$btnRemove.Margin = New-Object System.Windows.Forms.Padding(0, 10, 0, 0)
+
+$pnlSelected.Controls.Add($btnRemove)
+$pnlSelected.Controls.Add($lbSelected)
+$pnlSelected.Controls.Add($lblSelected)
+
+$lbSelected.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbSelected.Top = 35
+$lbSelected.Left = 0
+$lbSelected.Width = $pnlSelected.Width - 20
+$lbSelected.Height = $pnlSelected.Height - 90
+
+# Middle Panel - Database
+$pnlDatabase = New-Object System.Windows.Forms.Panel
+$pnlDatabase.BackColor = $Colors.BG_Panel
+$pnlDatabase.Padding = New-Object System.Windows.Forms.Padding(10)
+
+$lblDatabase = New-Object System.Windows.Forms.Label
+$lblDatabase.Text = 'Available Drivers'
+$lblDatabase.Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Bold)
+$lblDatabase.ForeColor = $Colors.Text_Primary
+$lblDatabase.AutoSize = $true
+
+$lbDatabase = New-StyledListBox
+$lbDatabase.SelectionMode = 'MultiExtended'
+
+$btnAdd = New-StyledButton 'Add to Selection'
+$btnAdd.Dock = 'Bottom'
+$btnAdd.Margin = New-Object System.Windows.Forms.Padding(0, 10, 0, 0)
+
+$pnlDatabase.Controls.Add($btnAdd)
+$pnlDatabase.Controls.Add($lbDatabase)
+$pnlDatabase.Controls.Add($lblDatabase)
+
+$lbDatabase.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbDatabase.Top = 35
+$lbDatabase.Left = 0
+$lbDatabase.Width = $pnlDatabase.Width - 20
+$lbDatabase.Height = $pnlDatabase.Height - 90
+
+# Right Panel - Devices
+$pnlDevices = New-Object System.Windows.Forms.Panel
+$pnlDevices.BackColor = $Colors.BG_Panel
+$pnlDevices.Padding = New-Object System.Windows.Forms.Padding(10)
+
+$lblDevices = New-Object System.Windows.Forms.Label
+$lblDevices.Text = 'Detected Devices'
+$lblDevices.Font = New-Object System.Drawing.Font('Segoe UI', 12, [System.Drawing.FontStyle]::Bold)
+$lblDevices.ForeColor = $Colors.Text_Primary
+$lblDevices.AutoSize = $true
+
+$lbDevices = New-StyledListBox
+
+$btnScan = New-StyledButton 'Scan Devices'
+$btnScan.Dock = 'Bottom'
+$btnScan.Margin = New-Object System.Windows.Forms.Padding(0, 10, 0, 0)
+
+$pnlDevices.Controls.Add($btnScan)
+$pnlDevices.Controls.Add($lbDevices)
+$pnlDevices.Controls.Add($lblDevices)
+
+$lbDevices.Anchor = [System.Windows.Forms.AnchorStyles]'Top,Bottom,Left,Right'
+$lbDevices.Top = 35
+$lbDevices.Left = 0
+$lbDevices.Width = $pnlDevices.Width - 20
+$lbDevices.Height = $pnlDevices.Height - 90
+
+$content.Controls.Add($pnlSelected, 0, 0)
+$content.Controls.Add($pnlDatabase, 1, 0)
+$content.Controls.Add($pnlDevices, 2, 0)
+
+# Footer
+$footer = New-Object System.Windows.Forms.Panel
+$footer.Dock = 'Bottom'
+$footer.Height = 60
+$footer.BackColor = $Colors.BG_Panel
+$footer.BorderStyle = 'FixedSingle'
+$footer.Padding = New-Object System.Windows.Forms.Padding(10)
+
+$btnInstall = New-StyledButton 'Download & Install Selected'
+$btnInstall.Width = 250
+$btnInstall.Dock = 'Left'
+
+$btnExit = New-StyledButton 'Exit'
+$btnExit.Width = 100
+$btnExit.Dock = 'Right'
+$btnExit.BackColor = $Colors.Accent
+$btnExit.Tag = @{ Normal = $Colors.Accent; Hover = [System.Drawing.Color]::FromArgb(200, 50, 50) }
+
+$footer.Controls.Add($btnExit)
+$footer.Controls.Add($btnInstall)
+$form.Controls.Add($footer)
+
+# Load Data
 $db = Load-Database
+
 function Refresh-DatabaseList() {
     $lbDatabase.Items.Clear()
-    foreach ($d in $db) { $lbDatabase.Items.Add("$($d.name) [$($d.category)]") | Out-Null }
+    foreach ($d in $db) { $lbDatabase.Items.Add("$($d.name)") | Out-Null }
 }
 Refresh-DatabaseList
 
@@ -126,18 +237,27 @@ function Refresh-DeviceList() {
 }
 Refresh-DeviceList
 
+# Event Handlers
 $btnScan.Add_Click({ Refresh-DeviceList })
+
 $btnAdd.Add_Click({
     foreach ($i in $lbDatabase.SelectedItems) {
         $lbSelected.Items.Add($i) | Out-Null
     }
 })
 
+$btnRemove.Add_Click({
+    $indices = @()
+    for ($i = $lbSelected.Items.Count - 1; $i -ge 0; $i--) {
+        if ($lbSelected.SelectedIndices -contains $i) { $indices += $i }
+    }
+    foreach ($i in $indices) { $lbSelected.Items.RemoveAt($i) }
+})
+
 $btnInstall.Add_Click({
-    if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected','Info') | Out-Null; return }
+    if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected', 'Info') | Out-Null; return }
     for ($i=0; $i -lt $lbSelected.Items.Count; $i++) {
-        $sel = $lbSelected.Items[$i]
-        $name = ($sel -split '\s\[')[0]
+        $name = $lbSelected.Items[$i]
         $driver = $db | Where-Object { $_.name -eq $name } | Select-Object -First 1
         if (-not $driver) { continue }
         if ($driver.type -eq 'command') {
@@ -146,7 +266,7 @@ $btnInstall.Add_Click({
             Set-Content -Path $tmpFile -Value $expanded -Encoding UTF8 -Force
             try { Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$tmpFile`"" -Wait } finally { Remove-Item -Path $tmpFile -ErrorAction SilentlyContinue }
         } else {
-            try { Start-Process -FilePath $driver.url } catch { [System.Windows.Forms.MessageBox]::Show("Failed to open: $($driver.url)", 'Error') | Out-Null }
+            try { Start-Process -FilePath $driver.url } catch { }
         }
     }
 })
@@ -159,7 +279,7 @@ $lbDevices.Add_DoubleClick({
     $name = ($sel -split ':',2)[1].Trim()
     $matches = $db | Where-Object { $name -match $_.pattern }
     $lbSelected.Items.Clear()
-    foreach ($m in $matches) { $lbSelected.Items.Add("$($m.name) [$($m.category)]") | Out-Null }
+    foreach ($m in $matches) { $lbSelected.Items.Add($m.name) | Out-Null }
 })
 
 $form.Add_Shown({ param($s,$e) $form.Activate() })
