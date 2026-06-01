@@ -81,24 +81,39 @@ $layout.Controls.Add($right,2,0)
 $footer = New-Object System.Windows.Forms.Panel
 $footer.Dock = 'Bottom'
 $footer.Height = 56
-$scanBtn = New-Object System.Windows.Forms.Button; $scanBtn.Text='Scan'; $scanBtn.Width=100
-$addBtn = New-Object System.Windows.Forms.Button; $addBtn.Text='Add'; $addBtn.Width=100
-$removeBtn = New-Object System.Windows.Forms.Button; $removeBtn.Text='Remove'; $removeBtn.Width=100
-$installBtn = New-Object System.Windows.Forms.Button; $installBtn.Text='Install Selected'; $installBtn.Width=140
-$exitBtn = New-Object System.Windows.Forms.Button; $exitBtn.Text='Exit'; $exitBtn.Width=90
+$scanBtn = New-Object System.Windows.Forms.Button
+$scanBtn.Text = 'Scan'
+$scanBtn.Width = 100
+$addBtn = New-Object System.Windows.Forms.Button
+$addBtn.Text = 'Add'
+$addBtn.Width = 100
+$removeBtn = New-Object System.Windows.Forms.Button
+$removeBtn.Text = 'Remove'
+$removeBtn.Width = 100
+$installBtn = New-Object System.Windows.Forms.Button
+$installBtn.Text = 'Install Selected'
+$installBtn.Width = 140
+$exitBtn = New-Object System.Windows.Forms.Button
+$exitBtn.Text = 'Exit'
+$exitBtn.Width = 90
 
 $flow = New-Object System.Windows.Forms.FlowLayoutPanel
 $flow.Dock = 'Fill'
 $flow.Controls.AddRange(@($scanBtn,$addBtn,$removeBtn,$installBtn))
-$rightPanel = New-Object System.Windows.Forms.Panel; $rightPanel.Dock='Right'; $rightPanel.Width=100
-$rightPanel.Controls.Add($exitBtn); $exitBtn.Dock='Fill'
-$footer.Controls.Add($rightPanel); $footer.Controls.Add($flow)
+$rightPanel = New-Object System.Windows.Forms.Panel
+$rightPanel.Dock='Right'
+$rightPanel.Width=100
+$rightPanel.Controls.Add($exitBtn)
+$exitBtn.Dock='Fill'
+$footer.Controls.Add($rightPanel)
+$footer.Controls.Add($flow)
 $form.Controls.Add($footer)
 
 # populate db list
 foreach ($d in $db) { $lbDB.Items.Add($d.name) | Out-Null }
 
-# Eventsn$scanBtn.Add_Click({
+# Events
+$scanBtn.Add_Click({
     $lbDevices.Items.Clear()
     $devs = Detect-Devices()
     foreach ($dv in $devs) { $lbDevices.Items.Add("$($dv.Type): $($dv.Name)") | Out-Null }
