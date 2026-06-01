@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "Global NVIDIA Driver",
+    "pattern": "NVIDIA|GeForce|RTX|GTX",
+    "url": "https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe",
+    "type": "url",
+    "category": "GPU"
+  },
+  {
+    "id": "2",
+    "name": "AMD Installer (command)",
+    "pattern": "AMD|Radeon|RX|Vega",
+    "url": "Invoke-WebRequest -Uri \"https://drivers.amd.com/drivers/installer/26.10/whql/amd-software-adrenalin-edition-26.5.2-minimalsetup-260513_web.exe\" -Headers @{\"Referer\"=\"https://www.amd.com/\"} -OutFile \"$env:USERPROFILE\\Downloads\\amd_driver.exe\"; Start-Process -FilePath \"$env:USERPROFILE\\Downloads\\amd_driver.exe\" -Wait",
+    "type": "command",
+    "category": "GPU"
+  },
+  {
+    "id": "3",
+    "name": "Intel Graphics Driver",
+    "pattern": "Intel Graphics|Intel Iris",
+    "url": "https://www.intel.com/content/www/en/en/download/726609",
+    "type": "url",
+    "category": "GPU"
+  }
+]
