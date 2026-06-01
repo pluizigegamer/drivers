@@ -11,11 +11,11 @@ Usage (run as Administrator):
 
 1) To run the user UI:
    irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/driver-manager.ps1 | iex
-2) To open the admin panel (edit DB):
+
+2) To open the admin panel (edit DB):
    irm https://raw.githubusercontent.com/pluizigegamer/drivers/main/admin-panel.ps1 | iex
 
 Notes:
-- The admin password is 'pluisje'. The script verifies SHA256 hash; do not store plain passwords in code for production.
 - Command-type driver entries are executed by writing the command text to a temporary .ps1 and running PowerShell with Bypass execution policy to avoid environment expansion errors.
 - The database is stored at $env:APPDATA\DriverManager\drivers-db.json
 
