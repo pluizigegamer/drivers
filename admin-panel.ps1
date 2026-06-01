@@ -35,7 +35,8 @@ $login.ShowDialog()
 if (-not $allow) { Write-Host 'Login cancelled'; return }
 
 # Admin main form
-$db = Load-Databasen$main = New-Object System.Windows.Forms.Form
+$db = Load-Database
+$main = New-Object System.Windows.Forms.Form
 $main.Text = 'Driver DB Admin'
 $main.Size = New-Object System.Drawing.Size(800,500)
 $main.StartPosition = 'CenterScreen'
