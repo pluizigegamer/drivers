@@ -20,60 +20,56 @@ function Get-HashBase64($text) {
     [Convert]::ToBase64String($h)
 }
 
-# Login form
-$login = New-Object System.Windows.Forms.Form
-$login.Text = 'Admin Login'
-$login.Size = New-Object System.Drawing.Size(360,150)
-$login.StartPosition = 'CenterScreen'
+# Login form loop
+$authenticated = $false
+while (-not $authenticated) {
+    $login = New-Object System.Windows.Forms.Form
+    $login.Text = 'Admin Login'
+    $login.Size = New-Object System.Drawing.Size(360, 150)
+    $login.StartPosition = 'CenterScreen'
+    $login.FormBorderStyle = 'FixedDialog'
+    $login.MaximizeBox = $false
+    $login.MinimizeBox = $false
 
-$lbl = New-Object System.Windows.Forms.Label
-$lbl.Text = 'Password:'
-$lbl.Location = New-Object System.Drawing.Point(10, 20)
-$lbl.AutoSize = $true
+    $lbl = New-Object System.Windows.Forms.Label
+    $lbl.Text = 'Password:'
+    $lbl.Location = New-Object System.Drawing.Point(10, 20)
+    $lbl.AutoSize = $true
 
-$txt = New-Object System.Windows.Forms.TextBox
-$txt.Location = New-Object System.Drawing.Point(90, 18)
-$txt.Width = 240
-$txt.UseSystemPasswordChar = $true
+    $txt = New-Object System.Windows.Forms.TextBox
+    $txt.Location = New-Object System.Drawing.Point(90, 18)
+    $txt.Width = 240
+    $txt.UseSystemPasswordChar = $true
 
-$btn = New-Object System.Windows.Forms.Button
-$btn.Text = 'Login'
-$btn.Location = New-Object System.Drawing.Point(90, 60)
-$btn.Width = 80
+    $btnOK = New-Object System.Windows.Forms.Button
+    $btnOK.Text = 'Login'
+    $btnOK.Location = New-Object System.Drawing.Point(90, 60)
+    $btnOK.DialogResult = [System.Windows.Forms.DialogResult]::OK
 
-$login.Controls.AddRange(@($lbl, $txt, $btn))
+    $btnCancel = New-Object System.Windows.Forms.Button
+    $btnCancel.Text = 'Cancel'
+    $btnCancel.Location = New-Object System.Drawing.Point(180, 60)
+    $btnCancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
 
-$allow = $false
+    $login.AcceptButton = $btnOK
+    $login.CancelButton = $btnCancel
+    $login.Controls.AddRange(@($lbl, $txt, $btnOK, $btnCancel))
+    $login.Add_Shown({ $txt.Focus() })
 
-$loginHandler = {
-    param($s, $e)
+    $result = $login.ShowDialog()
     $pwd = $txt.Text
-    $hash = Get-HashBase64 $pwd
-    if ($hash -eq $passwdHash) {
-        $allow = $true
-        $login.Close()
+    $login.Dispose()
+
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        $hash = Get-HashBase64 $pwd
+        if ($hash -eq $passwdHash) {
+            $authenticated = $true
+        } else {
+            [System.Windows.Forms.MessageBox]::Show('Incorrect password', 'Error') | Out-Null
+        }
     } else {
-        [System.Windows.Forms.MessageBox]::Show('Incorrect password', 'Error') | Out-Null
-        $txt.Clear()
-        $txt.Focus()
+        exit
     }
-}
-
-$btn.Add_Click($loginHandler)
-$txt.Add_KeyDown({
-    param($s, $e)
-    if ($e.KeyCode -eq [System.Windows.Forms.Keys]::Return) {
-        $e.SuppressKeyDown = $true
-        & $loginHandler
-    }
-})
-
-$login.Add_Shown({ $txt.Focus() })
-$login.ShowDialog()
-
-if (-not $allow) { 
-    Write-Host 'Admin login denied'
-    exit 
 }
 
 # Admin main form
