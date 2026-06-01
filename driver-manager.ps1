@@ -137,7 +137,6 @@ $btnInstall.Add_Click({
     if ($lbSelected.Items.Count -eq 0) { [System.Windows.Forms.MessageBox]::Show('No drivers selected','Info') | Out-Null; return }
     for ($i=0; $i -lt $lbSelected.Items.Count; $i++) {
         $sel = $lbSelected.Items[$i]
-        # find by name prefix
         $name = ($sel -split '\s\[')[0]
         $driver = $db | Where-Object { $_.name -eq $name } | Select-Object -First 1
         if (-not $driver) { continue }
@@ -154,7 +153,6 @@ $btnInstall.Add_Click({
 
 $btnExit.Add_Click({ $form.Close() })
 
-# Double-click on device: try to find matching drivers
 $lbDevices.Add_DoubleClick({
     $sel = $lbDevices.SelectedItem
     if (-not $sel) { return }
