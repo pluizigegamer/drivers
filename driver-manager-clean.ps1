@@ -60,7 +60,7 @@ $dbList = New-Object System.Windows.Forms.ListBox; $dbList.Dock='Fill'
 $dbPanel.Controls.Add($dbList); $dbPanel.Controls.Add($dbLabel)
 
 # Devices
-devPanel = New-Object System.Windows.Forms.Panel; $devPanel.Dock='Fill'
+$devPanel = New-Object System.Windows.Forms.Panel; $devPanel.Dock='Fill'
 $devLabel = New-Object System.Windows.Forms.Label; $devLabel.Text='Detected Devices'; $devLabel.Dock='Top'
 $devList = New-Object System.Windows.Forms.ListBox; $devList.Dock='Fill'
 $devPanel.Controls.Add($devList); $devPanel.Controls.Add($devLabel)
